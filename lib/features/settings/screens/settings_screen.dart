@@ -9,8 +9,7 @@ import 'package:unigpa/core/widgets/app_setting_tile.dart';
 import 'package:provider/provider.dart';
 import 'package:unigpa/data/providers/gpa_provider.dart';
 import 'package:unigpa/data/providers/semester_provider.dart';
-
-
+import 'package:unigpa/data/providers/theme_provider.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -26,8 +25,8 @@ class SettingsScreen extends StatelessWidget {
             padding: const EdgeInsets.only(left: 4, bottom: 12),
             child: Text(
               'Cài đặt chung',
-              style: AppTextStyles.labelLarge.copyWith(
-                color: context.colors.textSecondary,
+              style: AppTextStyles.headingSmall.copyWith(
+                color: colors.textPrimary,
               ),
             ),
           ),
@@ -38,8 +37,39 @@ class SettingsScreen extends StatelessWidget {
             subtitle: 'Quản lý danh sách năm học & học kỳ',
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const SemesterManagementScreen()),
+              MaterialPageRoute(
+                builder: (_) => const SemesterManagementScreen(),
+              ),
             ),
+          ),
+          const SizedBox(height: 12),
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, _) {
+              String themeName = '';
+              IconData themeIcon = Icons.settings_brightness_rounded;
+              switch (themeProvider.themeMode) {
+                case ThemeMode.light:
+                  themeName = 'Sáng';
+                  themeIcon = Icons.light_mode_rounded;
+                  break;
+                case ThemeMode.dark:
+                  themeName = 'Tối';
+                  themeIcon = Icons.dark_mode_rounded;
+                  break;
+                case ThemeMode.system:
+                  themeName = 'Hệ thống';
+                  themeIcon = Icons.settings_brightness_rounded;
+                  break;
+              }
+
+              return AppSettingTile(
+                icon: themeIcon,
+                iconColor: Colors.purple,
+                title: 'Giao diện',
+                subtitle: 'Đang chọn: $themeName',
+                onTap: () => _showThemeSelector(context),
+              );
+            },
           ),
           const SizedBox(height: 12),
           AppSettingTile(
@@ -52,10 +82,20 @@ class SettingsScreen extends StatelessWidget {
               MaterialPageRoute(builder: (_) => const GradeConfigScreen()),
             ),
           ),
+          const SizedBox(height: 12),
+          AppSettingTile(
+            icon: Icons.delete_forever_rounded,
+            iconColor: AppColors.error,
+            title: 'Xoá tất cả dữ liệu',
+            subtitle: 'Xoá vĩnh viễn mọi học kỳ và môn học',
+            onTap: () => _showClearAllConfirm(context),
+          ),
           const SizedBox(height: 24),
           Text(
-            'Hỗ trợ & Thông tin',
-            style: AppTextStyles.headingSmall.copyWith(color: colors.textPrimary),
+            'Thông tin chung',
+            style: AppTextStyles.headingSmall.copyWith(
+              color: colors.textPrimary,
+            ),
           ),
           const SizedBox(height: 12),
           AppSettingTile(
@@ -78,35 +118,18 @@ class SettingsScreen extends StatelessWidget {
             icon: Icons.star_outline_rounded,
             iconColor: Colors.amber,
             title: 'Đánh giá',
-            isTrailing: false,
             subtitle: 'Ủng hộ ứng dụng trên cửa hàng',
-            onTap: () => _launchUrl(context, 'https://github.com/truongpersonal/unigpa'),
+            onTap: () =>
+                _launchUrl(context, 'https://github.com/truongpersonal/unigpa'),
           ),
           const SizedBox(height: 12),
           AppSettingTile(
             icon: Icons.alternate_email_rounded,
             iconColor: Colors.blue,
-            isTrailing: false,
             title: 'Liên hệ',
             subtitle: 'Góp ý hoặc báo lỗi trực tiếp',
-            onTap: () => _launchUrl(context, 'mailto:ngoquangtruong.isme@gmail.com'),
-          ),
-          const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 12),
-            child: Text(
-              'Dữ liệu',
-              style: AppTextStyles.labelLarge.copyWith(
-                color: colors.textSecondary,
-              ),
-            ),
-          ),
-          AppSettingTile(
-            icon: Icons.delete_forever_rounded,
-            iconColor: AppColors.error,
-            title: 'Xoá tất cả dữ liệu',
-            subtitle: 'Xoá vĩnh viễn mọi học kỳ và môn học',
-            onTap: () => _showClearAllConfirm(context),
+            onTap: () =>
+                _launchUrl(context, 'mailto:ngoquangtruong.isme@gmail.com'),
           ),
           const SizedBox(height: 20),
         ],
@@ -150,6 +173,81 @@ class SettingsScreen extends StatelessWidget {
         ),
       );
     }
+  }
+
+  void _showThemeSelector(BuildContext context) {
+    final themeProvider = context.read<ThemeProvider>();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => AppBottomSheet(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Text('Chọn giao diện', style: AppTextStyles.headingMedium),
+            ),
+            const SizedBox(height: 8),
+            _buildThemeOption(
+              context,
+              mode: ThemeMode.system,
+              title: 'Theo hệ thống',
+              icon: Icons.settings_brightness_rounded,
+              currentMode: themeProvider.themeMode,
+            ),
+            _buildThemeOption(
+              context,
+              mode: ThemeMode.light,
+              title: 'Giao diện sáng',
+              icon: Icons.light_mode_rounded,
+              currentMode: themeProvider.themeMode,
+            ),
+            _buildThemeOption(
+              context,
+              mode: ThemeMode.dark,
+              title: 'Giao diện tối',
+              icon: Icons.dark_mode_rounded,
+              currentMode: themeProvider.themeMode,
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThemeOption(
+    BuildContext context, {
+    required ThemeMode mode,
+    required String title,
+    required IconData icon,
+    required ThemeMode currentMode,
+  }) {
+    final isSelected = mode == currentMode;
+    final colors = context.colors;
+
+    return ListTile(
+      onTap: () {
+        context.read<ThemeProvider>().setThemeMode(mode);
+        Navigator.pop(context);
+      },
+      leading: Icon(
+        icon,
+        color: isSelected ? AppColors.primary : colors.textSecondary,
+      ),
+      title: Text(
+        title,
+        style: AppTextStyles.bodyLarge.copyWith(
+          color: isSelected ? AppColors.primary : colors.textPrimary,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        ),
+      ),
+      trailing: isSelected
+          ? const Icon(Icons.check_rounded, color: AppColors.primary)
+          : null,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    );
   }
 
   void _showGuideBottomSheet(BuildContext context) {

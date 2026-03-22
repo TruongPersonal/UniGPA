@@ -11,7 +11,6 @@ class AppSettingTile extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
-    this.isTrailing = true,
   });
 
   final IconData icon;
@@ -19,7 +18,6 @@ class AppSettingTile extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
-  final bool isTrailing;
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +38,7 @@ class AppSettingTile extends StatelessWidget {
           ),
           child: Icon(icon, color: iconColor, size: 22),
         ),
-        trailing: isTrailing
-            ? Icon(Icons.chevron_right_rounded, color: colors.textHint)
-            : null,
+        trailing: Icon(Icons.chevron_right_rounded, color: colors.textHint)
       ),
     );
   }

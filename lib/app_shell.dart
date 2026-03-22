@@ -157,12 +157,6 @@ class _AppShellState extends State<AppShell> {
                   final gpaProvider = context.read<GPAProvider>();
                   final semesterProvider = context.read<SemesterProvider>();
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Đang nhập dữ liệu môn học...'),
-                    ),
-                  );
-
                   await gpaProvider.importSubjects(subjects, semesterProvider);
 
                   if (context.mounted) {

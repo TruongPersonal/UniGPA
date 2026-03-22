@@ -1,11 +1,19 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:unigpa/data/services/storage_service.dart';
 
 class ThemeProvider extends ChangeNotifier with WidgetsBindingObserver {
   ThemeMode _themeMode = ThemeMode.system;
 
   ThemeProvider() {
     WidgetsBinding.instance.addObserver(this);
+    _loadTheme();
+  }
+
+  void _loadTheme() {
+    final index = StorageService.getThemeMode();
+    _themeMode = ThemeMode.values[index];
+    notifyListeners();
   }
 
   @override
@@ -31,14 +39,20 @@ class ThemeProvider extends ChangeNotifier with WidgetsBindingObserver {
     return _themeMode == ThemeMode.dark;
   }
 
-  void toggleTheme() {
-    if (_themeMode == ThemeMode.system) {
-      _themeMode = ThemeMode.light;
-    } else if (_themeMode == ThemeMode.light) {
-      _themeMode = ThemeMode.dark;
-    } else {
-      _themeMode = ThemeMode.system;
-    }
+  Future<void> setThemeMode(ThemeMode mode) async {
+    if (_themeMode == mode) return;
+    _themeMode = mode;
     notifyListeners();
+    await StorageService.setThemeMode(mode.index);
+  }
+
+  Future<void> toggleTheme() async {
+    if (_themeMode == ThemeMode.system) {
+      await setThemeMode(ThemeMode.light);
+    } else if (_themeMode == ThemeMode.light) {
+      await setThemeMode(ThemeMode.dark);
+    } else {
+      await setThemeMode(ThemeMode.system);
+    }
   }
 }

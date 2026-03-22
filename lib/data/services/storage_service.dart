@@ -7,16 +7,24 @@ class StorageService {
   static const String _gradeBoxName = 'grades';
   static const String _subjectBoxName = 'subjects';
   static const String _semesterBoxName = 'semesters';
+  static const String _settingsBoxName = 'settings';
 
   static Future<void> init() async {
     final gradeBox = await Hive.openBox<Grade>(_gradeBoxName);
     await Hive.openBox<Subject>(_subjectBoxName);
     await Hive.openBox<AcademicSemester>(_semesterBoxName);
+    await Hive.openBox(_settingsBoxName);
 
     if (gradeBox.isEmpty) {
       await gradeBox.addAll(_defaultGrades());
     }
   }
+
+  static int getThemeMode() =>
+      Hive.box(_settingsBoxName).get('themeMode', defaultValue: 0) as int;
+
+  static Future<void> setThemeMode(int index) async =>
+      Hive.box(_settingsBoxName).put('themeMode', index);
 
   static List<Grade> _defaultGrades() => [
     Grade(letter: 'A+', point4: 4.0, startPoint10: 9.5, endPoint10: 10.0),
