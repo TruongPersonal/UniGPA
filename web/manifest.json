@@ -5,7 +5,7 @@
     "display": "standalone",
     "background_color": "#4F6AF5",
     "theme_color": "#4F6AF5",
-    "description": "A new Flutter project.",
+    "description": "Ứng dụng quản lý điểm và tính GPA chuyên nghiệp dành cho sinh viên Việt Nam.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
