@@ -27,13 +27,14 @@ class SemesterProvider extends ChangeNotifier {
 
   List<AcademicSemester> semestersOfYear(Year year) =>
       _semesters
-          .where((s) =>
-              s.year.start == year.start && s.year.end == year.end)
+          .where((s) => s.year.start == year.start && s.year.end == year.end)
           .toList()
         ..sort((a, b) => a.semester.compareTo(b.semester));
 
-  Future<void> addSemester({required Year year, required int semesterNumber}) async {
-
+  Future<void> addSemester({
+    required Year year,
+    required int semesterNumber,
+  }) async {
     final exists = _semesters.any(
       (s) => s.year.start == year.start && s.semester == semesterNumber,
     );
@@ -47,14 +48,21 @@ class SemesterProvider extends ChangeNotifier {
   Future<bool> deleteSemester(AcademicSemester semester) async {
     if (StorageService.semesterHasSubjects(semester)) return false;
 
-    _semesters.removeWhere((s) => 
-      s.year.start == semester.year.start && s.semester == semester.semester
+    _semesters.removeWhere(
+      (s) =>
+          s.year.start == semester.year.start &&
+          s.semester == semester.semester,
     );
     notifyListeners();
 
     await StorageService.deleteSemester(semester);
     _loadData();
     return true;
+  }
+
+  Future<void> deleteAllData() async {
+    await StorageService.clearSemesters();
+    _loadData();
   }
 
   void reload() => _loadData();

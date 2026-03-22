@@ -181,9 +181,7 @@ class _TargetGpaCalculatorState extends State<TargetGpaCalculator> {
                     label: 'TC tích lũy',
                     hint: 'vd: 60',
                     keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly
-                    ],
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     onChanged: (_) => _onInputChanged(),
                   ),
                 ),
@@ -208,9 +206,7 @@ class _TargetGpaCalculatorState extends State<TargetGpaCalculator> {
                   label: _inputRemaining ? 'TC còn lại' : 'TC toàn khoá',
                   hint: _inputRemaining ? 'vd: 30' : 'vd: 120',
                   keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly
-                  ],
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   onChanged: (_) => _onInputChanged(),
                   trailingLabel: GestureDetector(
                     onTap: () => setState(() {

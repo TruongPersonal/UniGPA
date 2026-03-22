@@ -10,18 +10,17 @@ abstract class AppColors {
 
   static const Map<String, Color> letterColors = {
     'A+': Color(0xFF059669),
-    'A':  Color(0xFF10B981),
+    'A': Color(0xFF10B981),
     'B+': Color(0xFF3B82F6),
-    'B':  Color(0xFF6366F1),
+    'B': Color(0xFF6366F1),
     'C+': Color(0xFF8B5CF6),
-    'C':  Color(0xFFF59E0B),
+    'C': Color(0xFFF59E0B),
     'D+': Color(0xFFF97316),
-    'D':  Color(0xFFEF4444),
-    'F':  Color(0xFF991B1B),
+    'D': Color(0xFFEF4444),
+    'F': Color(0xFF991B1B),
   };
 
-  static Color letterColor(String letter) =>
-      letterColors[letter] ?? error;
+  static Color letterColor(String letter) => letterColors[letter] ?? error;
 
   static Color gpaColor(double gpa) {
     if (gpa >= 3.6) return letterColors['A']!;
@@ -62,7 +61,6 @@ class AppColorsData extends ThemeExtension<AppColorsData> {
   );
 
   static const dark = AppColorsData(
-
     background: Color(0xFF111318),
     surface: Color(0xFF1C1F28),
 
@@ -83,16 +81,15 @@ class AppColorsData extends ThemeExtension<AppColorsData> {
     Color? textHint,
     Color? divider,
     Color? primaryLight,
-  }) =>
-      AppColorsData(
-        background: background ?? this.background,
-        surface: surface ?? this.surface,
-        textPrimary: textPrimary ?? this.textPrimary,
-        textSecondary: textSecondary ?? this.textSecondary,
-        textHint: textHint ?? this.textHint,
-        divider: divider ?? this.divider,
-        primaryLight: primaryLight ?? this.primaryLight,
-      );
+  }) => AppColorsData(
+    background: background ?? this.background,
+    surface: surface ?? this.surface,
+    textPrimary: textPrimary ?? this.textPrimary,
+    textSecondary: textSecondary ?? this.textSecondary,
+    textHint: textHint ?? this.textHint,
+    divider: divider ?? this.divider,
+    primaryLight: primaryLight ?? this.primaryLight,
+  );
 
   @override
   AppColorsData lerp(AppColorsData? other, double t) {

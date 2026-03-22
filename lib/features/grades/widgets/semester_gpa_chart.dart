@@ -42,8 +42,10 @@ class SemesterGpaChart extends StatelessWidget {
           const SizedBox(height: 20),
           LayoutBuilder(
             builder: (context, constraints) {
-              final minWidth = data.length * 80.0; 
-              final width = minWidth > constraints.maxWidth ? minWidth : constraints.maxWidth;
+              final minWidth = data.length * 80.0;
+              final width = minWidth > constraints.maxWidth
+                  ? minWidth
+                  : constraints.maxWidth;
 
               return SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -53,9 +55,8 @@ class SemesterGpaChart extends StatelessWidget {
                   height: 180,
                   child: Stack(
                     children: [
-                      
                       BarChart(_buildBarChartData(colors, data)),
-                      
+
                       LineChart(_buildLineChartData(colors, data)),
                     ],
                   ),
@@ -125,14 +126,12 @@ class SemesterGpaChart extends StatelessWidget {
         rightTitles: const AxisTitles(
           sideTitles: SideTitles(showTitles: false),
         ),
-        topTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
+        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
       ),
       barGroups: data.asMap().entries.map((entry) {
         final idx = entry.key;
         final item = entry.value;
-        final color = AppColors.gpaColor(item.gpa).withValues(alpha: 0.35); 
+        final color = AppColors.gpaColor(item.gpa).withValues(alpha: 0.35);
         return BarChartGroupData(
           x: idx,
           barRods: [
@@ -155,9 +154,7 @@ class SemesterGpaChart extends StatelessWidget {
             children: [
               TextSpan(
                 text: '\nGPA: ${rod.toY.toStringAsFixed(2)}',
-                style: AppTextStyles.headingSmall.copyWith(
-                  color: Colors.white,
-                ),
+                style: AppTextStyles.headingSmall.copyWith(color: Colors.white),
               ),
             ],
           ),
@@ -166,7 +163,10 @@ class SemesterGpaChart extends StatelessWidget {
     );
   }
 
-  LineChartData _buildLineChartData(AppColorsData colors, List<_ChartData> data) {
+  LineChartData _buildLineChartData(
+    AppColorsData colors,
+    List<_ChartData> data,
+  ) {
     return LineChartData(
       minY: 0,
       maxY: 4.2,
@@ -224,11 +224,9 @@ class SemesterGpaChart extends StatelessWidget {
         rightTitles: const AxisTitles(
           sideTitles: SideTitles(showTitles: false),
         ),
-        topTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
+        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
       ),
-      lineTouchData: const LineTouchData(enabled: false), 
+      lineTouchData: const LineTouchData(enabled: false),
       lineBarsData: [
         LineChartBarData(
           spots: data.asMap().entries.map((e) {
@@ -273,14 +271,14 @@ class SemesterGpaChart extends StatelessWidget {
               );
       });
 
-    return entries
-        .where((e) => e.value.any((s) => s.finalPoint10 != null))
-        .map((e) {
-      final gpa = GpaCalculator.calculateForSemester(
-        semesterSubjects: e.value,
-        grades: grades,
-      );
-      return _ChartData(label: e.key, gpa: gpa);
-    }).toList();
+    return entries.where((e) => e.value.any((s) => s.finalPoint10 != null)).map(
+      (e) {
+        final gpa = GpaCalculator.calculateForSemester(
+          semesterSubjects: e.value,
+          grades: grades,
+        );
+        return _ChartData(label: e.key, gpa: gpa);
+      },
+    ).toList();
   }
 }

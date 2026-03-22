@@ -49,7 +49,9 @@ class AppTextField extends StatelessWidget {
             children: [
               Text(
                 label!,
-                style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary),
+                style: AppTextStyles.labelLarge.copyWith(
+                  color: colors.textPrimary,
+                ),
               ),
               ?trailingLabel,
             ],
@@ -68,10 +70,7 @@ class AppTextField extends StatelessWidget {
           autofocus: autofocus,
           enabled: enabled,
           style: TextStyle(color: colors.textPrimary),
-          decoration: InputDecoration(
-            hintText: hint,
-            counterText: '',
-          ),
+          decoration: InputDecoration(hintText: hint, counterText: ''),
         ),
       ],
     );

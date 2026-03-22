@@ -2,9 +2,7 @@ import 'package:unigpa/data/models/grade.dart';
 import 'package:unigpa/data/models/subject.dart';
 
 abstract class GpaCalculator {
-
-  static bool isPassing(Grade? grade) =>
-      grade != null && grade.letter != 'F';
+  static bool isPassing(Grade? grade) => grade != null && grade.letter != 'F';
 
   static int passedCreditsOf({
     required List<Subject> subjects,
@@ -79,6 +77,5 @@ abstract class GpaCalculator {
   static double calculateForSemester({
     required List<Subject> semesterSubjects,
     required List<Grade> grades,
-  }) =>
-      calculateCumulative(subjects: semesterSubjects, grades: grades);
+  }) => calculateCumulative(subjects: semesterSubjects, grades: grades);
 }

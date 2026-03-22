@@ -15,8 +15,7 @@ class Year {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Year && other.start == start;
+      identical(this, other) || other is Year && other.start == start;
 
   @override
   int get hashCode => start.hashCode;

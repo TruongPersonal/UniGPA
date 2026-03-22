@@ -15,23 +15,22 @@ class HomeScreen extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           child: CustomScrollView(
             slivers: [
-
               SliverToBoxAdapter(
-                  child: GpaSummaryCard(
-                    gpa: provider.currentGPA,
-                    totalCredits: provider.totalCredits,
-                    totalRegisteredCredits: provider.totalRegisteredCredits,
-                    subjectCount: provider.totalSubjectsCount,
-                  ),
+                child: GpaSummaryCard(
+                  gpa: provider.currentGPA,
+                  totalCredits: provider.totalCredits,
+                  totalRegisteredCredits: provider.totalRegisteredCredits,
+                  subjectCount: provider.totalSubjectsCount,
+                ),
               ),
 
               const SliverToBoxAdapter(child: SizedBox(height: 24)),
 
               SliverToBoxAdapter(
-                  child: TargetGpaCalculator(
-                    currentGPA: provider.currentGPA,
-                    currentCredits: provider.totalCredits,
-                  ),
+                child: TargetGpaCalculator(
+                  currentGPA: provider.currentGPA,
+                  currentCredits: provider.totalCredits,
+                ),
               ),
             ],
           ),

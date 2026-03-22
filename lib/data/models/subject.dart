@@ -39,7 +39,8 @@ class Subject {
 
       if (processPoint != null && examPoint != null) {
         return double.parse(
-          (processPoint! * processWeight! + examPoint! * (1 - processWeight!)).toStringAsFixed(1),
+          (processPoint! * processWeight! + examPoint! * (1 - processWeight!))
+              .toStringAsFixed(1),
         );
       }
     }
@@ -49,7 +50,8 @@ class Subject {
   double? getPoint4(List<Grade> grades) {
     if (finalPoint10 == null) return null;
     for (var grade in grades) {
-      if (finalPoint10! >= grade.startPoint10! && finalPoint10! <= grade.endPoint10!) {
+      if (finalPoint10! >= grade.startPoint10! &&
+          finalPoint10! <= grade.endPoint10!) {
         return grade.point4;
       }
     }
@@ -59,7 +61,8 @@ class Subject {
   String? getGradeLetter(List<Grade> grades) {
     if (finalPoint10 == null) return null;
     for (var grade in grades) {
-      if (finalPoint10! >= grade.startPoint10! && finalPoint10! <= grade.endPoint10!) {
+      if (finalPoint10! >= grade.startPoint10! &&
+          finalPoint10! <= grade.endPoint10!) {
         return grade.letter;
       }
     }

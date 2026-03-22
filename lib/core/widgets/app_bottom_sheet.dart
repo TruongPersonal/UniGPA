@@ -35,40 +35,42 @@ class AppBottomSheet extends StatelessWidget {
       behavior: HitTestBehavior.translucent,
       child: AnimatedPadding(
         duration: const Duration(milliseconds: 150),
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Container(
-        decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
-        child: SafeArea(
-          top: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(top: 16, bottom: 20),
-                  decoration: BoxDecoration(
-                    color: colors.divider,
-                    borderRadius: BorderRadius.circular(2),
+        child: Container(
+          decoration: BoxDecoration(
+            color: colors.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(top: 16, bottom: 20),
+                    decoration: BoxDecoration(
+                      color: colors.divider,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
-              ),
 
-              Flexible(
-                child: scrollable
-                    ? SingleChildScrollView(padding: padding, child: child)
-                    : Padding(padding: padding, child: child),
-              ),
-            ],
+                Flexible(
+                  child: scrollable
+                      ? SingleChildScrollView(padding: padding, child: child)
+                      : Padding(padding: padding, child: child),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    ));
+    );
   }
 }

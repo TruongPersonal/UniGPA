@@ -31,82 +31,85 @@ class GradeConfigScreen extends StatelessWidget {
       body: SafeArea(
         child: Consumer<GradeConfigProvider>(
           builder: (context, provider, _) {
-          final grades = provider.grades;
-          return ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 44,
-                      child: Text(
-                        'Điểm',
-                        style: AppTextStyles.labelMedium.copyWith(
-                          color: colors.textSecondary,
+            final grades = provider.grades;
+            return ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 44,
+                        child: Text(
+                          'Điểm',
+                          style: AppTextStyles.labelMedium.copyWith(
+                            color: colors.textSecondary,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Khoảng điểm 10',
-                        style: AppTextStyles.labelMedium.copyWith(
-                          color: colors.textSecondary,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Khoảng điểm 10',
+                          style: AppTextStyles.labelMedium.copyWith(
+                            color: colors.textSecondary,
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(
-                      width: 64,
-                      child: Text(
-                        'Điểm 4',
-                        style: AppTextStyles.labelMedium.copyWith(
-                          color: colors.textSecondary,
+                      SizedBox(
+                        width: 64,
+                        child: Text(
+                          'Điểm 4',
+                          style: AppTextStyles.labelMedium.copyWith(
+                            color: colors.textSecondary,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    SizedBox(width: 52,
-                    child: Text(
-                        'Dùng',
-                        style: AppTextStyles.labelMedium.copyWith(
-                          color: colors.textSecondary,
+                      const SizedBox(width: 12),
+                      SizedBox(
+                        width: 52,
+                        child: Text(
+                          'Dùng',
+                          style: AppTextStyles.labelMedium.copyWith(
+                            color: colors.textSecondary,
+                          ),
                         ),
-                      ),),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
 
-              const SizedBox(height: 8),
+                const SizedBox(height: 8),
 
-              AppCard(
-                padding: EdgeInsets.zero,
-                child: Column(
-                  children: grades.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final grade = entry.value;
-                    final isLast = index == grades.length - 1;
-                    return _GradeConfigTile(
-                      grade: grade,
-                      showDivider: !isLast,
-                      onEdit: () =>
-                          _showEditDialog(context, provider, index, grade),
-                      onToggle: () async {
-                        await provider.toggleActive(index);
-                        if (context.mounted) {
-                          context.read<GPAProvider>().reload();
-                        }
-                      },
-                    );
-                  }).toList(),
+                AppCard(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    children: grades.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final grade = entry.value;
+                      final isLast = index == grades.length - 1;
+                      return _GradeConfigTile(
+                        grade: grade,
+                        showDivider: !isLast,
+                        onEdit: () =>
+                            _showEditDialog(context, provider, index, grade),
+                        onToggle: () async {
+                          await provider.toggleActive(index);
+                          if (context.mounted) {
+                            context.read<GPAProvider>().reload();
+                          }
+                        },
+                      );
+                    }).toList(),
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
-      )),
+              ],
+            );
+          },
+        ),
+      ),
     );
   }
 
@@ -155,7 +158,6 @@ class _GradeConfigTile extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
-
                 Container(
                   width: 44,
                   height: 32,
@@ -285,64 +287,68 @@ class _EditGradeSheetState extends State<_EditGradeSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-              'Cấu hình điểm ${widget.grade.letter}',
-              style: AppTextStyles.headingMedium.copyWith(
-                color: colors.textPrimary,
+            'Cấu hình điểm ${widget.grade.letter}',
+            style: AppTextStyles.headingMedium.copyWith(
+              color: colors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 24),
+          AppTextField(
+            controller: _point4Ctrl,
+            label: 'Điểm (Thang 4)',
+            hint: 'vd: 4.0',
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^\d*[\.,]?\d*')),
+            ],
+            autocorrect: false,
+            enableSuggestions: false,
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: AppTextField(
+                  controller: _startCtrl,
+                  label: 'Từ điểm (Thang 10)',
+                  hint: 'vd: 8.5',
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d*[\.,]?\d*')),
+                  ],
+                  autocorrect: false,
+                  enableSuggestions: false,
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
-            AppTextField(
-              controller: _point4Ctrl,
-              label: 'Điểm (Thang 4)',
-              hint: 'vd: 4.0',
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'^\d*[\.,]?\d*')),
-              ],
-              autocorrect: false,
-              enableSuggestions: false,
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: AppTextField(
-                     controller: _startCtrl,
-                     label: 'Từ điểm (Thang 10)',
-                     hint: 'vd: 8.5',
-                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                     inputFormatters: [
-                       FilteringTextInputFormatter.allow(RegExp(r'^\d*[\.,]?\d*')),
-                     ],
-                     autocorrect: false,
-                     enableSuggestions: false,
+              const SizedBox(width: 12),
+              Expanded(
+                child: AppTextField(
+                  controller: _endCtrl,
+                  label: 'Đến điểm (Thang 10)',
+                  hint: 'vd: 10.0',
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
                   ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d*[\.,]?\d*')),
+                  ],
+                  autocorrect: false,
+                  enableSuggestions: false,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: AppTextField(
-                     controller: _endCtrl,
-                     label: 'Đến điểm (Thang 10)',
-                     hint: 'vd: 10.0',
-                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                     inputFormatters: [
-                       FilteringTextInputFormatter.allow(RegExp(r'^\d*[\.,]?\d*')),
-                     ],
-                     autocorrect: false,
-                     enableSuggestions: false,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            AppButton(
-              onPressed: _isValid && !_isLoading ? _submit : null,
-              isLoading: _isLoading,
-              label: 'Lưu',
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          AppButton(
+            onPressed: _isValid && !_isLoading ? _submit : null,
+            isLoading: _isLoading,
+            label: 'Lưu',
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
     );
   }
 
@@ -365,7 +371,7 @@ class _EditGradeSheetState extends State<_EditGradeSheet> {
         isActive: widget.grade.isActive,
       ),
     );
-    
+
     if (mounted) {
       context.read<GPAProvider>().reload();
       Navigator.pop(context);

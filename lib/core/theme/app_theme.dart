@@ -2,15 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:unigpa/core/constants/app_colors.dart';
 
 abstract class AppTheme {
-  static ThemeData light() => _build(
-        brightness: Brightness.light,
-        colors: AppColorsData.light,
-      );
+  static ThemeData light() =>
+      _build(brightness: Brightness.light, colors: AppColorsData.light);
 
-  static ThemeData dark() => _build(
-        brightness: Brightness.dark,
-        colors: AppColorsData.dark,
-      );
+  static ThemeData dark() =>
+      _build(brightness: Brightness.dark, colors: AppColorsData.dark);
 
   static ThemeData _build({
     required Brightness brightness,
@@ -83,9 +79,7 @@ abstract class AppTheme {
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: isDark ? 4 : 6,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
 
       inputDecorationTheme: InputDecorationTheme(
@@ -116,10 +110,7 @@ abstract class AppTheme {
           fontSize: 18,
           fontWeight: FontWeight.w600,
         ),
-        contentTextStyle: TextStyle(
-          color: colors.textSecondary,
-          fontSize: 14,
-        ),
+        contentTextStyle: TextStyle(color: colors.textSecondary, fontSize: 14),
       ),
 
       splashFactory: InkSparkle.splashFactory,

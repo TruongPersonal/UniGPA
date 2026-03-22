@@ -1,60 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:unigpa/core/constants/app_colors.dart';
 import 'package:unigpa/core/constants/app_text_styles.dart';
-import 'package:unigpa/core/widgets/app_card.dart';
-import 'package:unigpa/core/widgets/app_list_tile.dart';
 import 'package:unigpa/core/widgets/app_bottom_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'semester_management_screen.dart';
 import 'grade_config_screen.dart';
+import 'package:unigpa/core/widgets/app_setting_tile.dart';
+import 'package:provider/provider.dart';
+import 'package:unigpa/data/providers/gpa_provider.dart';
+import 'package:unigpa/data/providers/semester_provider.dart';
 
-class _SettingItem extends StatelessWidget {
-  const _SettingItem({
-    this.isTrailing = true,
-    required this.icon,
-    required this.iconColor,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
 
-  final IconData icon;
-  final Color iconColor;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-  final bool isTrailing;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    return AppCard(
-      padding: EdgeInsets.zero,
-      child: AppListTile(
-        title: title,
-        subtitle: subtitle,
-        showDivider: false,
-        onTap: onTap,
-        leading: Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: iconColor.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: iconColor, size: 22),
-        ),
-        trailing: isTrailing ? Icon(Icons.chevron_right_rounded, color: colors.textHint) : null,
-      ),
-    );
-  }
-}
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Padding(
       padding: const EdgeInsets.all(20),
       child: ListView(
@@ -63,56 +26,55 @@ class SettingsScreen extends StatelessWidget {
             padding: const EdgeInsets.only(left: 4, bottom: 12),
             child: Text(
               'Cài đặt chung',
-              style: AppTextStyles.labelLarge.copyWith(color: context.colors.textSecondary),
+              style: AppTextStyles.labelLarge.copyWith(
+                color: context.colors.textSecondary,
+              ),
             ),
           ),
-          _SettingItem(
+          AppSettingTile(
             icon: Icons.calendar_today_rounded,
-            iconColor: AppColors.primary,
-            title: 'Học vụ',
-            subtitle: 'Quản lý năm học và học kỳ',
+            iconColor: Colors.blue,
+            title: 'Học kỳ',
+            subtitle: 'Quản lý danh sách năm học & học kỳ',
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const SemesterManagementScreen()),
             ),
           ),
           const SizedBox(height: 12),
-          _SettingItem(
+          AppSettingTile(
             icon: Icons.grade_rounded,
-            iconColor: AppColors.accent,
-            title: 'Cấu hình',
-            subtitle: 'Quản lý điểm 4 và khoảng điểm 10',
+            iconColor: Colors.orange,
+            title: 'Thang điểm',
+            subtitle: 'Cấu hình hệ điểm chữ và trọng số',
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const GradeConfigScreen()),
             ),
           ),
           const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 12),
-            child: Text(
-              'Hỗ trợ, thông tin',
-              style: AppTextStyles.labelLarge.copyWith(color: context.colors.textSecondary),
-            ),
+          Text(
+            'Hỗ trợ & Thông tin',
+            style: AppTextStyles.headingSmall.copyWith(color: colors.textPrimary),
           ),
-          _SettingItem(
+          const SizedBox(height: 12),
+          AppSettingTile(
             icon: Icons.help_outline_rounded,
-            iconColor: Colors.orange,
+            iconColor: Colors.teal,
             title: 'Hướng dẫn',
-            subtitle: 'Cách sử dụng và tính điểm GPA',
+            subtitle: 'Cách sử dụng ứng dụng hiệu quả',
             onTap: () => _showGuideBottomSheet(context),
           ),
-          
           const SizedBox(height: 12),
-          _SettingItem(
+          AppSettingTile(
             icon: Icons.info_outline_rounded,
-            iconColor: Colors.teal,
+            iconColor: Colors.purple,
             title: 'Về tôi',
             subtitle: 'Thông tin phiên bản và tác giả',
             onTap: () => _showAboutBottomSheet(context),
           ),
           const SizedBox(height: 12),
-          _SettingItem(
+          AppSettingTile(
             icon: Icons.star_outline_rounded,
             iconColor: Colors.amber,
             title: 'Đánh giá',
@@ -121,7 +83,7 @@ class SettingsScreen extends StatelessWidget {
             onTap: () => _launchUrl(context, 'https://github.com/truongpersonal/unigpa'),
           ),
           const SizedBox(height: 12),
-          _SettingItem(
+          AppSettingTile(
             icon: Icons.alternate_email_rounded,
             iconColor: Colors.blue,
             isTrailing: false,
@@ -129,9 +91,65 @@ class SettingsScreen extends StatelessWidget {
             subtitle: 'Góp ý hoặc báo lỗi trực tiếp',
             onTap: () => _launchUrl(context, 'mailto:ngoquangtruong.isme@gmail.com'),
           ),
+          const SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 12),
+            child: Text(
+              'Dữ liệu',
+              style: AppTextStyles.labelLarge.copyWith(
+                color: colors.textSecondary,
+              ),
+            ),
+          ),
+          AppSettingTile(
+            icon: Icons.delete_forever_rounded,
+            iconColor: AppColors.error,
+            title: 'Xoá tất cả dữ liệu',
+            subtitle: 'Xoá vĩnh viễn mọi học kỳ và môn học',
+            onTap: () => _showClearAllConfirm(context),
+          ),
+          const SizedBox(height: 20),
         ],
       ),
     );
+  }
+
+  Future<void> _showClearAllConfirm(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xoá tất cả dữ liệu?'),
+        content: const Text(
+          'Tất cả học kỳ và môn học của bạn sẽ bị xoá vĩnh viễn. Hành động này không thể hoàn tác!',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Huỷ'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('Xoá'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      if (!context.mounted) return;
+      await context.read<GPAProvider>().clearAllData();
+      if (!context.mounted) return;
+      await context.read<SemesterProvider>().deleteAllData();
+
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Đã xoá toàn bộ dữ liệu thành công!'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    }
   }
 
   void _showGuideBottomSheet(BuildContext context) {
@@ -146,7 +164,10 @@ class SettingsScreen extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-              child: Text('Hướng dẫn sử dụng', style: AppTextStyles.headingMedium),
+              child: Text(
+                'Hướng dẫn sử dụng',
+                style: AppTextStyles.headingMedium,
+              ),
             ),
             const SizedBox(height: 16),
             _buildGuideStep(
@@ -180,7 +201,12 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildGuideStep(BuildContext context, String step, String title, String desc) {
+  Widget _buildGuideStep(
+    BuildContext context,
+    String step,
+    String title,
+    String desc,
+  ) {
     final colors = context.colors;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -197,7 +223,11 @@ class SettingsScreen extends StatelessWidget {
             child: Center(
               child: Text(
                 step,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
               ),
             ),
           ),
@@ -206,9 +236,19 @@ class SettingsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary)),
+                Text(
+                  title,
+                  style: AppTextStyles.labelLarge.copyWith(
+                    color: colors.textPrimary,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(desc, style: AppTextStyles.bodySmall.copyWith(color: colors.textSecondary)),
+                Text(
+                  desc,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: colors.textSecondary,
+                  ),
+                ),
               ],
             ),
           ),
@@ -248,20 +288,29 @@ class SettingsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text('UniGPA', style: AppTextStyles.headingLarge),
-            Text('Phiên bản 1.0.0', style: AppTextStyles.bodySmall.copyWith(color: context.colors.textSecondary)),
+            Text(
+              'Phiên bản 1.0.0',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: context.colors.textSecondary,
+              ),
+            ),
             const SizedBox(height: 24),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(
                 'Ứng dụng quản lý điểm và tính GPA chuyên nghiệp dành cho sinh viên Việt Nam. Giúp bạn theo dõi lộ trình học tập hiệu quả.',
                 textAlign: TextAlign.center,
-                style: AppTextStyles.bodyMedium.copyWith(color: context.colors.textPrimary),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: context.colors.textPrimary,
+                ),
               ),
             ),
             const SizedBox(height: 32),
             Text(
               'Phát triển bởi ❤️ TruongPersonal',
-              style: AppTextStyles.labelMedium.copyWith(color: context.colors.textSecondary),
+              style: AppTextStyles.labelMedium.copyWith(
+                color: context.colors.textSecondary,
+              ),
             ),
             const SizedBox(height: 20),
           ],

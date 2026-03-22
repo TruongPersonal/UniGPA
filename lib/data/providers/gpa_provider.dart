@@ -16,8 +16,9 @@ class GPAProvider extends ChangeNotifier {
   List<Subject> get subjects => List.unmodifiable(_subjects);
   List<Grade> get grades => List.unmodifiable(_grades);
 
-  int get totalRegisteredCredits =>
-      _subjects.where((s) => s.finalPoint10 != null).fold(0, (sum, s) => sum + s.credits);
+  int get totalRegisteredCredits => _subjects
+      .where((s) => s.finalPoint10 != null)
+      .fold(0, (sum, s) => sum + s.credits);
 
   int get totalSubjectsCount =>
       _subjects.where((s) => s.finalPoint10 != null).length;
@@ -57,7 +58,12 @@ class GPAProvider extends ChangeNotifier {
   }
 
   Future<void> deleteSubject(Subject subject) async {
-    _subjects.removeWhere((s) => s.name == subject.name && s.semester.year.start == subject.semester.year.start && s.semester.semester == subject.semester.semester);
+    _subjects.removeWhere(
+      (s) =>
+          s.name == subject.name &&
+          s.semester.year.start == subject.semester.year.start &&
+          s.semester.semester == subject.semester.semester,
+    );
     notifyListeners();
 
     await StorageService.deleteSubject(subject);
@@ -69,22 +75,45 @@ class GPAProvider extends ChangeNotifier {
     _loadData();
   }
 
-  Future<void> importSubjects(List<Subject> newSubjects, SemesterProvider semesterProvider) async {
+  Future<void> importSubjects(
+    List<Subject> newSubjects,
+    SemesterProvider semesterProvider,
+  ) async {
     for (final s in newSubjects) {
-      // Ensure the semester exists first
       await semesterProvider.addSemester(
         year: s.semester.year,
         semesterNumber: s.semester.semester,
       );
 
-      final exists = _subjects.any((existing) =>
-          existing.name == s.name &&
-          existing.semester.year.start == s.semester.year.start &&
-          existing.semester.semester == s.semester.semester);
+      final exists = _subjects.any(
+        (existing) =>
+            existing.name == s.name &&
+            existing.semester.year.start == s.semester.year.start &&
+            existing.semester.semester == s.semester.semester,
+      );
       if (!exists) {
         await StorageService.addSubject(s);
       }
     }
+    _loadData();
+  }
+
+  Future<void> deleteSubjects(List<Subject> subjects) async {
+    for (final subject in subjects) {
+      _subjects.removeWhere(
+        (s) =>
+            s.name == subject.name &&
+            s.semester.year.start == subject.semester.year.start &&
+            s.semester.semester == subject.semester.semester,
+      );
+    }
+    notifyListeners();
+    await StorageService.deleteSubjects(subjects);
+    _loadData();
+  }
+
+  Future<void> clearAllData() async {
+    await StorageService.clearSubjects();
     _loadData();
   }
 

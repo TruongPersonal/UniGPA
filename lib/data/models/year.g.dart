@@ -16,10 +16,7 @@ class YearAdapter extends TypeAdapter<Year> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Year(
-      fields[0] as int,
-      fields[1] as int,
-    );
+    return Year(fields[0] as int, fields[1] as int);
   }
 
   @override

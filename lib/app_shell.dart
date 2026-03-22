@@ -101,39 +101,78 @@ class _AppShellState extends State<AppShell> {
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
                 child: Text(
                   'Dữ liệu CSV',
-                  style: AppTextStyles.headingMedium.copyWith(color: colors.textPrimary),
+                  style: AppTextStyles.headingMedium.copyWith(
+                    color: colors.textPrimary,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
               AppListTile(
-                leading: const Icon(Icons.upload_file_rounded, color: AppColors.primary),
+                leading: const Icon(
+                  Icons.upload_file_rounded,
+                  color: AppColors.primary,
+                ),
                 title: 'Xuất CSV',
                 subtitle: 'Lưu toàn bộ dữ liệu môn học ra file CSV',
-                onTap: () {
+                onTap: () async {
                   Navigator.pop(context);
-                  CsvService.exportSubjects(context.read<GPAProvider>().subjects);
+                  await CsvService.exportSubjects(
+                    context.read<GPAProvider>().subjects,
+                  );
                 },
               ),
               const SizedBox(height: 8),
               AppListTile(
-                leading: const Icon(Icons.download_for_offline_rounded, color: AppColors.primary),
+                leading: const Icon(
+                  Icons.download_for_offline_rounded,
+                  color: AppColors.primary,
+                ),
                 title: 'Nhập từ CSV',
                 subtitle: 'Khôi phục dữ liệu từ file sao lưu của bạn',
                 onTap: () async {
-                  Navigator.pop(context);
                   final subjects = await CsvService.importSubjects();
-                  if (subjects != null && context.mounted) {
-                    final gpaProvider = context.read<GPAProvider>();
-                    final semesterProvider = context.read<SemesterProvider>();
-                    await gpaProvider.importSubjects(subjects, semesterProvider);
+
+                  if (!context.mounted) return;
+                  Navigator.pop(context);
+
+                  if (subjects == null) {
+                    return;
+                  }
+
+                  if (subjects.isEmpty) {
                     if (context.mounted) {
+                      ScaffoldMessenger.of(context).clearSnackBars();
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Đã nhập dữ liệu thành công!'),
-                          backgroundColor: AppColors.success,
+                          content: Text(
+                            'Không tìm thấy dữ liệu hợp lệ trong file CSV!',
+                          ),
+                          backgroundColor: AppColors.error,
                         ),
                       );
                     }
+                    return;
+                  }
+
+                  final gpaProvider = context.read<GPAProvider>();
+                  final semesterProvider = context.read<SemesterProvider>();
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Đang nhập dữ liệu môn học...'),
+                    ),
+                  );
+
+                  await gpaProvider.importSubjects(subjects, semesterProvider);
+
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).clearSnackBars();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Đã nhập dữ liệu ${subjects.length} môn học!'),
+                        backgroundColor: AppColors.success,
+                      ),
+                    );
                   }
                 },
               ),
@@ -166,8 +205,8 @@ class _AppShellState extends State<AppShell> {
           tooltip: themeProvider.themeMode == ThemeMode.system
               ? 'Giao diện hệ thống'
               : themeProvider.themeMode == ThemeMode.light
-                  ? 'Giao diện sáng'
-                  : 'Giao diện tối',
+              ? 'Giao diện sáng'
+              : 'Giao diện tối',
           icon: AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
             transitionBuilder: (child, anim) =>
@@ -176,8 +215,8 @@ class _AppShellState extends State<AppShell> {
               themeProvider.themeMode == ThemeMode.system
                   ? Icons.brightness_6_rounded
                   : themeProvider.themeMode == ThemeMode.light
-                      ? Icons.wb_sunny_rounded
-                      : Icons.nightlight_round,
+                  ? Icons.wb_sunny_rounded
+                  : Icons.nightlight_round,
               key: ValueKey(themeProvider.themeMode),
               color: colors.textSecondary,
               size: 20,

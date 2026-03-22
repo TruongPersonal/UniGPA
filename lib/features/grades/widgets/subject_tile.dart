@@ -15,6 +15,9 @@ class SubjectTile extends StatelessWidget {
     required this.grades,
     required this.showDivider,
     required this.onDelete,
+    this.isSelectionMode = false,
+    this.isSelected = false,
+    this.onToggleSelection,
   });
 
   final Subject subject;
@@ -22,19 +25,26 @@ class SubjectTile extends StatelessWidget {
   final List<Grade> grades;
   final bool showDivider;
   final VoidCallback onDelete;
+  final bool isSelectionMode;
+  final bool isSelected;
+  final VoidCallback? onToggleSelection;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final isCompleted = subject.finalPoint10 != null;
-    final grade = isCompleted ? GpaCalculator.findGradeFor(
-      point10: subject.finalPoint10,
-      grades: grades,
-    ) : null;
-    
+    final grade = isCompleted
+        ? GpaCalculator.findGradeFor(
+            point10: subject.finalPoint10,
+            grades: grades,
+          )
+        : null;
+
     final letterGrade = isCompleted ? (grade?.letter ?? 'F') : 'N/A';
     final point4 = grade?.point4 ?? 0.0;
-    final gradeColor = isCompleted ? AppColors.letterColor(letterGrade) : colors.textHint;
+    final gradeColor = isCompleted
+        ? AppColors.letterColor(letterGrade)
+        : colors.textHint;
 
     Widget trailingContent;
     if (isCompleted) {
@@ -44,9 +54,7 @@ class SubjectTile extends StatelessWidget {
         children: [
           Text(
             _fmt(subject.finalPoint10!),
-            style: AppTextStyles.headingSmall.copyWith(
-              color: gradeColor,
-            ),
+            style: AppTextStyles.headingSmall.copyWith(color: gradeColor),
           ),
           Text(
             '${_fmt(point4)} / 4.0',
@@ -61,11 +69,67 @@ class SubjectTile extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text('N/A', style: AppTextStyles.labelLarge.copyWith(color: colors.textSecondary)),
-          Text('N/A', style: AppTextStyles.bodySmall.copyWith(color: colors.textHint)),
+          Text(
+            'N/A',
+            style: AppTextStyles.labelLarge.copyWith(
+              color: colors.textSecondary,
+            ),
+          ),
+          Text(
+            'N/A',
+            style: AppTextStyles.bodySmall.copyWith(color: colors.textHint),
+          ),
         ],
       );
     }
+
+    final tile = AppListTile(
+      onTap: isSelectionMode
+          ? onToggleSelection
+          : () => showAddSubjectSheet(
+                context,
+                editIndex: subjectIndex,
+                editSubject: subject,
+              ),
+      onLongPress: onToggleSelection,
+      leading: isSelectionMode
+          ? Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? AppColors.primary.withValues(alpha: 0.12)
+                    : colors.textHint.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                isSelected
+                    ? Icons.check_circle_rounded
+                    : Icons.radio_button_off_rounded,
+                color: isSelected ? AppColors.primary : colors.textHint,
+              ),
+            )
+          : Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: gradeColor.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(
+                child: Text(
+                  letterGrade,
+                  style: AppTextStyles.headingSmall.copyWith(color: gradeColor),
+                ),
+              ),
+            ),
+      title: subject.name,
+      subtitle: '${subject.credits} tín chỉ',
+      trailing: isSelectionMode ? null : trailingContent,
+      showDivider: showDivider,
+    );
+
+    if (isSelectionMode) return tile;
 
     return Dismissible(
       key: ValueKey('sub_${subjectIndex}_${subject.name}'),
@@ -89,33 +153,7 @@ class SubjectTile extends StatelessWidget {
           ],
         ),
       ),
-      child: AppListTile(
-        onTap: () => showAddSubjectSheet(
-          context,
-          editIndex: subjectIndex,
-          editSubject: subject,
-        ),
-        leading: Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: gradeColor.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Center(
-            child: Text(
-              letterGrade,
-              style: AppTextStyles.headingSmall.copyWith(
-                color: gradeColor,
-              ),
-            ),
-          ),
-        ),
-        title: subject.name,
-        subtitle: '${subject.credits} tín chỉ',
-        trailing: trailingContent,
-        showDivider: showDivider,
-      ),
+      child: tile,
     );
   }
 

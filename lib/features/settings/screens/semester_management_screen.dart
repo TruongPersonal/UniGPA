@@ -33,29 +33,30 @@ class SemesterManagementScreen extends StatelessWidget {
       body: SafeArea(
         child: Consumer<SemesterProvider>(
           builder: (context, provider, _) {
-          if (provider.isEmpty) {
-            return const EmptyState(
-              icon: Icons.calendar_today_rounded,
-              title: 'Chưa có học vụ nào',
-            );
-          }
-
-          final years = provider.distinctYears;
-          return ListView.separated(
-            padding: const EdgeInsets.all(20),
-            itemCount: years.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 16),
-            itemBuilder: (context, i) {
-              final year = years[i];
-              return _YearSection(
-                year: year,
-                semesters: provider.semestersOfYear(year),
-                onDelete: (sem) => _onDelete(context, provider, sem),
+            if (provider.isEmpty) {
+              return const EmptyState(
+                icon: Icons.calendar_today_rounded,
+                title: 'Chưa có học vụ nào',
               );
-            },
-          );
-        },
-      )),
+            }
+
+            final years = provider.distinctYears;
+            return ListView.separated(
+              padding: const EdgeInsets.all(20),
+              itemCount: years.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 16),
+              itemBuilder: (context, i) {
+                final year = years[i];
+                return _YearSection(
+                  year: year,
+                  semesters: provider.semestersOfYear(year),
+                  onDelete: (sem) => _onDelete(context, provider, sem),
+                );
+              },
+            );
+          },
+        ),
+      ),
       floatingActionButton: Consumer<SemesterProvider>(
         builder: (context, provider, _) => FloatingActionButton(
           onPressed: () => _showAddDialog(context, provider),
@@ -115,8 +116,9 @@ class _YearSection extends StatelessWidget {
       children: [
         Text(
           'Năm học ${year.yearDisplay}',
-          style: AppTextStyles.labelMedium
-              .copyWith(color: colors.textSecondary),
+          style: AppTextStyles.labelMedium.copyWith(
+            color: colors.textSecondary,
+          ),
         ),
         const SizedBox(height: 8),
         ClipRRect(
@@ -191,8 +193,7 @@ class _SemesterTile extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               'Xoá',
-              style: AppTextStyles.labelMedium
-                  .copyWith(color: AppColors.error),
+              style: AppTextStyles.labelMedium.copyWith(color: AppColors.error),
             ),
           ],
         ),
@@ -227,7 +228,8 @@ class _SemesterTile extends StatelessWidget {
       builder: (ctx) => AlertDialog(
         title: const Text('Xoá học kỳ?'),
         content: Text(
-            'Xoá HK${semester.semester} · ${semester.year.yearDisplay}?'),
+          'Xoá HK${semester.semester} · ${semester.year.yearDisplay}?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -235,8 +237,7 @@ class _SemesterTile extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style:
-                TextButton.styleFrom(foregroundColor: AppColors.error),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: const Text('Xoá'),
           ),
         ],
@@ -282,91 +283,91 @@ class _AddSemesterSheetState extends State<_AddSemesterSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Thêm học vụ',
-                style: AppTextStyles.headingMedium
-                    .copyWith(color: colors.textPrimary)),
-            const SizedBox(height: 24),
+          Text(
+            'Thêm học vụ',
+            style: AppTextStyles.headingMedium.copyWith(
+              color: colors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 24),
 
-            Text('Năm học',
-                style: AppTextStyles.labelLarge
-                    .copyWith(color: colors.textPrimary)),
-            const SizedBox(height: 8),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: 120,
-                  child: AppTextField(
-                    controller: _yearCtrl,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
-                    maxLength: 4,
-                    autocorrect: false,
-                    hint: 'vd: 2025',
-                  ),
+          Text(
+            'Năm học',
+            style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 120,
+                child: AppTextField(
+                  controller: _yearCtrl,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  maxLength: 4,
+                  autocorrect: false,
+                  hint: 'vd: 2025',
                 ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
 
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            Text('Học kỳ',
-                style: AppTextStyles.labelLarge
-                    .copyWith(color: colors.textPrimary)),
-            const SizedBox(height: 8),
-            Row(
-              children: [1, 2, 3].map((n) {
-                final selected = _semesterNumber == n;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: ChoiceChip(
-                    label: Text('$n'),
-                    selected: selected,
-                    onSelected: (_) =>
-                        setState(() => _semesterNumber = n),
-                    selectedColor: colors.primaryLight,
-                    labelStyle: TextStyle(
-                      color: selected ? AppColors.primary : colors.textPrimary,
-                      fontWeight:
-                          selected ? FontWeight.w600 : FontWeight.w400,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      side: BorderSide(
-                        color: selected ? AppColors.primary : colors.divider,
-                      ),
-                    ),
-                    backgroundColor: colors.surface,
+          Text(
+            'Học kỳ',
+            style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [1, 2, 3].map((n) {
+              final selected = _semesterNumber == n;
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: ChoiceChip(
+                  label: Text('$n'),
+                  selected: selected,
+                  onSelected: (_) => setState(() => _semesterNumber = n),
+                  selectedColor: colors.primaryLight,
+                  labelStyle: TextStyle(
+                    color: selected ? AppColors.primary : colors.textPrimary,
+                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                   ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    side: BorderSide(
+                      color: selected ? AppColors.primary : colors.divider,
+                    ),
+                  ),
+                  backgroundColor: colors.surface,
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 16),
 
-            AppButton(
-              onPressed: _startYear == null ? null : _submit,
-              isLoading: _isLoading,
-              label: 'Lưu',
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
+          AppButton(
+            onPressed: _startYear == null ? null : _submit,
+            isLoading: _isLoading,
+            label: 'Lưu',
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
     );
   }
 
   Future<void> _submit() async {
     final provider = context.read<SemesterProvider>();
     final messenger = ScaffoldMessenger.of(context);
-    
+
     FocusManager.instance.primaryFocus?.unfocus();
     Navigator.pop(context);
-    
-    final exists = provider.semesters.any((s) => 
-      s.year.start == _startYear && s.semester == _semesterNumber
+
+    final exists = provider.semesters.any(
+      (s) => s.year.start == _startYear && s.semester == _semesterNumber,
     );
-    
+
     if (exists) {
       messenger.showSnackBar(
         const SnackBar(
@@ -381,7 +382,7 @@ class _AddSemesterSheetState extends State<_AddSemesterSheet> {
       year: Year(_startYear!, _startYear! + 1),
       semesterNumber: _semesterNumber,
     );
-    
+
     messenger.showSnackBar(
       const SnackBar(
         content: Text('Đã thêm học kỳ thành công!'),

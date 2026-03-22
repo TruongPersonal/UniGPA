@@ -23,29 +23,28 @@ class EmptyState extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: colors.primaryLight,
-                shape: BoxShape.circle,
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: colors.primaryLight,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, size: 36, color: AppColors.primary),
               ),
-              child: Icon(icon, size: 36, color: AppColors.primary),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              title,
-              style: AppTextStyles.headingSmall.copyWith(color: colors.textPrimary),
-              textAlign: TextAlign.center,
-            ),
-            if (action != null) ...[
-              const SizedBox(height: 24),
-              action!,
+              const SizedBox(height: 20),
+              Text(
+                title,
+                style: AppTextStyles.headingSmall.copyWith(
+                  color: colors.textPrimary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              if (action != null) ...[const SizedBox(height: 24), action!],
             ],
-          ],
+          ),
         ),
-      ),
       ),
     );
   }

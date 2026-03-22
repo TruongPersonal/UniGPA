@@ -10,6 +10,7 @@ class AppListTile extends StatelessWidget {
     this.leading,
     this.trailing,
     this.onTap,
+    this.onLongPress,
     this.showDivider = true,
   });
 
@@ -18,6 +19,7 @@ class AppListTile extends StatelessWidget {
   final Widget? leading;
   final Widget? trailing;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final bool showDivider;
 
   @override
@@ -28,6 +30,7 @@ class AppListTile extends StatelessWidget {
       children: [
         InkWell(
           onTap: onTap,
+          onLongPress: onLongPress,
           borderRadius: BorderRadius.circular(16),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -40,7 +43,9 @@ class AppListTile extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: AppTextStyles.bodyLarge.copyWith(color: colors.textPrimary),
+                        style: AppTextStyles.bodyLarge.copyWith(
+                          color: colors.textPrimary,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -48,7 +53,9 @@ class AppListTile extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           subtitle!,
-                          style: AppTextStyles.bodySmall.copyWith(color: colors.textSecondary),
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: colors.textSecondary,
+                          ),
                         ),
                       ],
                     ],
@@ -60,12 +67,7 @@ class AppListTile extends StatelessWidget {
           ),
         ),
         if (showDivider)
-          Divider(
-            height: 1,
-            indent: 16,
-            endIndent: 16,
-            color: colors.divider,
-          ),
+          Divider(height: 1, indent: 16, endIndent: 16, color: colors.divider),
       ],
     );
   }

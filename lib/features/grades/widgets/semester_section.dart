@@ -17,13 +17,18 @@ class SemesterSection extends StatelessWidget {
     required this.subjects,
     required this.grades,
     required this.onDeleteSubject,
+    required this.isSelectionMode,
+    required this.selectedSubjects,
+    required this.onToggleSelection,
   });
 
   final AcademicSemester semester;
   final List<Subject> subjects;
-
   final List<Grade> grades;
   final void Function(Subject subject) onDeleteSubject;
+  final bool isSelectionMode;
+  final Set<Subject> selectedSubjects;
+  final void Function(Subject subject) onToggleSelection;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +41,9 @@ class SemesterSection extends StatelessWidget {
       subjects: subjects,
       grades: grades,
     );
-    final totalSemesterCredits = subjects.where((s) => s.finalPoint10 != null).fold<int>(0, (sum, s) => sum + s.credits);
+    final totalSemesterCredits = subjects
+        .where((s) => s.finalPoint10 != null)
+        .fold<int>(0, (sum, s) => sum + s.credits);
     final hasCompleted = subjects.any((s) => s.finalPoint10 != null);
     final badgeColor = AppColors.gpaColor(semesterGpa);
 
@@ -57,11 +64,15 @@ class SemesterSection extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: hasCompleted ? badgeColor.withValues(alpha: 0.1) : colors.textHint.withValues(alpha: 0.1),
+                color: hasCompleted
+                    ? badgeColor.withValues(alpha: 0.1)
+                    : colors.textHint.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                hasCompleted ? 'GPA: ${semesterGpa.toStringAsFixed(2)}' : 'GPA: N/A',
+                hasCompleted
+                    ? 'GPA: ${semesterGpa.toStringAsFixed(2)}'
+                    : 'GPA: N/A',
                 style: AppTextStyles.bodySmall.copyWith(
                   color: hasCompleted ? badgeColor : colors.textSecondary,
                   fontWeight: FontWeight.bold,
@@ -71,8 +82,9 @@ class SemesterSection extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               '$passedCredits/$totalSemesterCredits TC',
-              style: AppTextStyles.bodySmall
-                  .copyWith(color: colors.textSecondary),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: colors.textSecondary,
+              ),
             ),
           ],
         ),
@@ -84,13 +96,20 @@ class SemesterSection extends StatelessWidget {
             child: Column(
               children: List.generate(subjects.length, (i) {
                 final subject = subjects[i];
-                final subjectIndex = context.read<GPAProvider>().subjects.indexOf(subject);
+                final subjectIndex = context
+                    .read<GPAProvider>()
+                    .subjects
+                    .indexOf(subject);
                 final isLast = i == subjects.length - 1;
+                final isSelected = selectedSubjects.contains(subject);
                 return SubjectTile(
                   subject: subject,
                   subjectIndex: subjectIndex,
                   grades: grades,
                   showDivider: !isLast,
+                  isSelectionMode: isSelectionMode,
+                  isSelected: isSelected,
+                  onToggleSelection: () => onToggleSelection(subject),
                   onDelete: () => onDeleteSubject(subject),
                 );
               }),

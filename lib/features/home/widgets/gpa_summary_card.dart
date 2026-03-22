@@ -36,7 +36,9 @@ class _StatItem extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               label,
-              style: AppTextStyles.bodySmall.copyWith(color: Colors.white.withValues(alpha: 0.7)),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: Colors.white.withValues(alpha: 0.7),
+              ),
             ),
           ],
         ),

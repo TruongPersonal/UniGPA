@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 abstract class AppTextStyles {
-
   static const TextStyle displayLarge = TextStyle(
     fontSize: 40,
     fontWeight: FontWeight.w700,
