@@ -21,7 +21,7 @@ class HomeScreen extends StatelessWidget {
                     gpa: provider.currentGPA,
                     totalCredits: provider.totalCredits,
                     totalRegisteredCredits: provider.totalRegisteredCredits,
-                    subjectCount: provider.subjects.length,
+                    subjectCount: provider.totalSubjectsCount,
                   ),
               ),
 

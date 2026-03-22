@@ -1,4 +1,10 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'subject.dart';
+
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
 
 class SubjectAdapter extends TypeAdapter<Subject> {
   @override
@@ -13,15 +19,18 @@ class SubjectAdapter extends TypeAdapter<Subject> {
     return Subject(
       name: fields[0] as String,
       credits: fields[1] as int,
-      point10: fields[2] as double,
+      point10: fields[2] as double?,
       semester: fields[3] as AcademicSemester,
+      processWeight: fields[4] as double?,
+      processPoint: fields[5] as double?,
+      examPoint: fields[6] as double?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Subject obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -29,7 +38,13 @@ class SubjectAdapter extends TypeAdapter<Subject> {
       ..writeByte(2)
       ..write(obj.point10)
       ..writeByte(3)
-      ..write(obj.semester);
+      ..write(obj.semester)
+      ..writeByte(4)
+      ..write(obj.processWeight)
+      ..writeByte(5)
+      ..write(obj.processPoint)
+      ..writeByte(6)
+      ..write(obj.examPoint);
   }
 
   @override

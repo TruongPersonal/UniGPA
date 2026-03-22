@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:unigpa/data/models/subject.dart';
 import 'package:unigpa/data/models/grade.dart';
 import 'package:unigpa/data/services/storage_service.dart';
+import 'package:unigpa/data/providers/semester_provider.dart';
 
 class GPAProvider extends ChangeNotifier {
   List<Subject> _subjects = [];
@@ -16,12 +17,15 @@ class GPAProvider extends ChangeNotifier {
   List<Grade> get grades => List.unmodifiable(_grades);
 
   int get totalRegisteredCredits =>
-      _subjects.fold(0, (sum, s) => sum + s.credits);
+      _subjects.where((s) => s.finalPoint10 != null).fold(0, (sum, s) => sum + s.credits);
+
+  int get totalSubjectsCount =>
+      _subjects.where((s) => s.finalPoint10 != null).length;
 
   int get totalCredits {
     int credits = 0;
-    for (final subject in _subjects) {
-      final grade = _findGradeFor(subject.point10);
+    for (final subject in _subjects.where((s) => s.finalPoint10 != null)) {
+      final grade = _findGradeFor(subject.finalPoint10);
       if (grade != null && grade.letter != 'F') {
         credits += subject.credits;
       }
@@ -30,13 +34,14 @@ class GPAProvider extends ChangeNotifier {
   }
 
   double get currentGPA {
-    if (_subjects.isEmpty) return 0.0;
+    final validSubjects = _subjects.where((s) => s.finalPoint10 != null);
+    if (validSubjects.isEmpty) return 0.0;
 
     double totalWeightedPoints = 0;
     double totalCredits = 0;
 
-    for (final subject in _subjects) {
-      final grade = _findGradeFor(subject.point10);
+    for (final subject in validSubjects) {
+      final grade = _findGradeFor(subject.finalPoint10);
       if (grade == null || grade.letter == 'F') continue;
 
       totalWeightedPoints += grade.point4! * subject.credits;
@@ -64,6 +69,25 @@ class GPAProvider extends ChangeNotifier {
     _loadData();
   }
 
+  Future<void> importSubjects(List<Subject> newSubjects, SemesterProvider semesterProvider) async {
+    for (final s in newSubjects) {
+      // Ensure the semester exists first
+      await semesterProvider.addSemester(
+        year: s.semester.year,
+        semesterNumber: s.semester.semester,
+      );
+
+      final exists = _subjects.any((existing) =>
+          existing.name == s.name &&
+          existing.semester.year.start == s.semester.year.start &&
+          existing.semester.semester == s.semester.semester);
+      if (!exists) {
+        await StorageService.addSubject(s);
+      }
+    }
+    _loadData();
+  }
+
   void reload() => _loadData();
 
   void _loadData() {
@@ -72,7 +96,8 @@ class GPAProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Grade? _findGradeFor(double point10) {
+  Grade? _findGradeFor(double? point10) {
+    if (point10 == null) return null;
     try {
       return _grades.firstWhere(
         (g) =>

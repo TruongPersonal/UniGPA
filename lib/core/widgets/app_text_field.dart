@@ -19,6 +19,7 @@ class AppTextField extends StatelessWidget {
     this.onChanged,
     this.trailingLabel,
     this.autofocus = false,
+    this.enabled = true,
   });
 
   final TextEditingController controller;
@@ -33,6 +34,7 @@ class AppTextField extends StatelessWidget {
   final void Function(String)? onChanged;
   final Widget? trailingLabel;
   final bool autofocus;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +66,7 @@ class AppTextField extends StatelessWidget {
           maxLength: maxLength,
           onChanged: onChanged,
           autofocus: autofocus,
+          enabled: enabled,
           style: TextStyle(color: colors.textPrimary),
           decoration: InputDecoration(
             hintText: hint,

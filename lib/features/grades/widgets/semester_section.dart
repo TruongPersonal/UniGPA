@@ -36,7 +36,8 @@ class SemesterSection extends StatelessWidget {
       subjects: subjects,
       grades: grades,
     );
-    final totalSemesterCredits = subjects.fold<int>(0, (sum, s) => sum + s.credits);
+    final totalSemesterCredits = subjects.where((s) => s.finalPoint10 != null).fold<int>(0, (sum, s) => sum + s.credits);
+    final hasCompleted = subjects.any((s) => s.finalPoint10 != null);
     final badgeColor = AppColors.gpaColor(semesterGpa);
 
     return Column(
@@ -56,13 +57,13 @@ class SemesterSection extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: badgeColor.withValues(alpha: 0.1),
+                color: hasCompleted ? badgeColor.withValues(alpha: 0.1) : colors.textHint.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                'GPA: ${semesterGpa.toStringAsFixed(2)}',
+                hasCompleted ? 'GPA: ${semesterGpa.toStringAsFixed(2)}' : 'GPA: N/A',
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: badgeColor,
+                  color: hasCompleted ? badgeColor : colors.textSecondary,
                   fontWeight: FontWeight.bold,
                 ),
               ),

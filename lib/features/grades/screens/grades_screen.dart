@@ -38,15 +38,16 @@ class GradesScreen extends StatelessWidget {
                   ),
                 )
               else ...[
-                SliverToBoxAdapter(
-                    child: SemesterGpaChart(
-                      subjects: subjects,
-                      grades: grades,
-                    ),
-                ),
+                if (gpaProvider.totalSubjectsCount > 0)
+                  SliverToBoxAdapter(
+                      child: SemesterGpaChart(
+                        subjects: subjects,
+                        grades: grades,
+                      ),
+                  ),
 
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(4, 16, 4, 0),
+                  padding: EdgeInsets.fromLTRB(4, gpaProvider.totalSubjectsCount > 0 ? 16 : 0, 4, 0),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, semIdx) {

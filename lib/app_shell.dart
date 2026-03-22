@@ -8,6 +8,11 @@ import 'package:unigpa/features/grades/screens/grades_screen.dart';
 import 'package:unigpa/features/home/screens/home_screen.dart';
 import 'package:unigpa/features/settings/screens/settings_screen.dart';
 import 'package:unigpa/core/widgets/app_logo_title.dart';
+import 'package:unigpa/core/utils/csv_service.dart';
+import 'package:unigpa/data/providers/gpa_provider.dart';
+import 'package:unigpa/core/widgets/app_bottom_sheet.dart';
+import 'package:unigpa/core/widgets/app_list_tile.dart';
+import 'package:unigpa/core/constants/app_text_styles.dart';
 
 class _TabItem {
   const _TabItem({required this.icon, required this.label});
@@ -53,16 +58,90 @@ class _AppShellState extends State<AppShell> {
           child: IndexedStack(index: _currentIndex, children: _screens),
         ),
       ),
-      floatingActionButton: Visibility(
-        visible: _currentIndex == 1 && hasSemesters,
-        child: FloatingActionButton(
-          onPressed: () => showAddSubjectSheet(context),
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          child: const Icon(Icons.add_rounded),
-        ),
-      ),
+      floatingActionButton: _buildFloatingActionButton(context, hasSemesters),
       bottomNavigationBar: _buildBottomNavBar(colors),
+    );
+  }
+
+  Widget? _buildFloatingActionButton(BuildContext context, bool hasSemesters) {
+    if (_currentIndex == 0) {
+      return FloatingActionButton(
+        onPressed: () => _showCsvBottomSheet(context),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        child: const Icon(Icons.import_export_rounded),
+      );
+    }
+
+    if (_currentIndex == 1 && hasSemesters) {
+      return FloatingActionButton(
+        onPressed: () => showAddSubjectSheet(context),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        child: const Icon(Icons.add_rounded),
+      );
+    }
+
+    return null;
+  }
+
+  void _showCsvBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        final colors = context.colors;
+        return AppBottomSheet(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                child: Text(
+                  'Dữ liệu CSV',
+                  style: AppTextStyles.headingMedium.copyWith(color: colors.textPrimary),
+                ),
+              ),
+              const SizedBox(height: 16),
+              AppListTile(
+                leading: const Icon(Icons.upload_file_rounded, color: AppColors.primary),
+                title: 'Xuất CSV',
+                subtitle: 'Lưu toàn bộ dữ liệu môn học ra file CSV',
+                onTap: () {
+                  Navigator.pop(context);
+                  CsvService.exportSubjects(context.read<GPAProvider>().subjects);
+                },
+              ),
+              const SizedBox(height: 8),
+              AppListTile(
+                leading: const Icon(Icons.download_for_offline_rounded, color: AppColors.primary),
+                title: 'Nhập từ CSV',
+                subtitle: 'Khôi phục dữ liệu từ file sao lưu của bạn',
+                onTap: () async {
+                  Navigator.pop(context);
+                  final subjects = await CsvService.importSubjects();
+                  if (subjects != null && context.mounted) {
+                    final gpaProvider = context.read<GPAProvider>();
+                    final semesterProvider = context.read<SemesterProvider>();
+                    await gpaProvider.importSubjects(subjects, semesterProvider);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Đã nhập dữ liệu thành công!'),
+                          backgroundColor: AppColors.success,
+                        ),
+                      );
+                    }
+                  }
+                },
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
     );
   }
 

@@ -12,7 +12,8 @@ abstract class GpaCalculator {
   }) {
     int total = 0;
     for (final subject in subjects) {
-      final grade = findGradeFor(point10: subject.point10, grades: grades);
+      if (subject.finalPoint10 == null) continue;
+      final grade = findGradeFor(point10: subject.finalPoint10, grades: grades);
       if (isPassing(grade)) total += subject.credits;
     }
     return total;
@@ -28,7 +29,8 @@ abstract class GpaCalculator {
     double totalCredits = 0;
 
     for (final subject in subjects) {
-      final grade = findGradeFor(point10: subject.point10, grades: grades);
+      if (subject.finalPoint10 == null) continue;
+      final grade = findGradeFor(point10: subject.finalPoint10, grades: grades);
       if (grade == null || grade.letter == 'F') continue;
 
       totalWeighted += grade.point4! * subject.credits;
@@ -56,7 +58,7 @@ abstract class GpaCalculator {
   }
 
   static Grade? findGradeFor({
-    required double point10,
+    required double? point10,
     required List<Grade> grades,
   }) {
     try {
@@ -65,6 +67,7 @@ abstract class GpaCalculator {
             g.isActive &&
             g.startPoint10 != null &&
             g.endPoint10 != null &&
+            point10 != null &&
             point10 >= g.startPoint10! &&
             point10 <= g.endPoint10!,
       );

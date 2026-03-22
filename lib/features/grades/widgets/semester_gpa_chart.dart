@@ -272,7 +272,10 @@ class SemesterGpaChart extends StatelessWidget {
                 b.value.first.semester.semester,
               );
       });
-    return entries.map((e) {
+
+    return entries
+        .where((e) => e.value.any((s) => s.finalPoint10 != null))
+        .map((e) {
       final gpa = GpaCalculator.calculateForSemester(
         semesterSubjects: e.value,
         grades: grades,

@@ -26,13 +26,46 @@ class SubjectTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final grade = GpaCalculator.findGradeFor(
-      point10: subject.point10,
+    final isCompleted = subject.finalPoint10 != null;
+    final grade = isCompleted ? GpaCalculator.findGradeFor(
+      point10: subject.finalPoint10,
       grades: grades,
-    );
-    final letterGrade = grade?.letter ?? 'F';
+    ) : null;
+    
+    final letterGrade = isCompleted ? (grade?.letter ?? 'F') : 'N/A';
     final point4 = grade?.point4 ?? 0.0;
-    final gradeColor = AppColors.letterColor(letterGrade);
+    final gradeColor = isCompleted ? AppColors.letterColor(letterGrade) : colors.textHint;
+
+    Widget trailingContent;
+    if (isCompleted) {
+      trailingContent = Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            _fmt(subject.finalPoint10!),
+            style: AppTextStyles.headingSmall.copyWith(
+              color: gradeColor,
+            ),
+          ),
+          Text(
+            '${_fmt(point4)} / 4.0',
+            style: AppTextStyles.bodySmall.copyWith(
+              color: colors.textSecondary,
+            ),
+          ),
+        ],
+      );
+    } else {
+      trailingContent = Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text('N/A', style: AppTextStyles.labelLarge.copyWith(color: colors.textSecondary)),
+          Text('N/A', style: AppTextStyles.bodySmall.copyWith(color: colors.textHint)),
+        ],
+      );
+    }
 
     return Dismissible(
       key: ValueKey('sub_${subjectIndex}_${subject.name}'),
@@ -80,24 +113,7 @@ class SubjectTile extends StatelessWidget {
         ),
         title: subject.name,
         subtitle: '${subject.credits} tín chỉ',
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              _fmt(subject.point10),
-              style: AppTextStyles.headingSmall.copyWith(
-                color: gradeColor,
-              ),
-            ),
-            Text(
-              '${_fmt(point4)} / 4.0',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: colors.textSecondary,
-              ),
-            ),
-          ],
-        ),
+        trailing: trailingContent,
         showDivider: showDivider,
       ),
     );
