@@ -17,6 +17,8 @@ class Grade extends HiveObject {
   @HiveField(4)
   bool isActive;
 
+  bool get isPassing => letter != 'F';
+
   Grade({
     required this.letter,
     this.point4,

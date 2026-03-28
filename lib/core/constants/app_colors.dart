@@ -20,7 +20,10 @@ abstract class AppColors {
     'F': Color(0xFF991B1B),
   };
 
-  static Color letterColor(String letter) => letterColors[letter] ?? error;
+  static Color letterColor(String letter) {
+    if (letter == 'N/A') return const Color(0xFF6B7299);
+    return letterColors[letter] ?? error;
+  }
 
   static Color gpaColor(double gpa) {
     if (gpa >= 3.6) return letterColors['A']!;

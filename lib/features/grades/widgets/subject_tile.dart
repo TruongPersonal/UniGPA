@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:unigpa/core/constants/app_colors.dart';
 import 'package:unigpa/core/constants/app_text_styles.dart';
-import 'package:unigpa/core/utils/gpa_calculator.dart';
+import 'package:unigpa/domain/usecases/gpa/find_grade_for_score.dart';
 import 'package:unigpa/data/models/grade.dart';
 import 'package:unigpa/core/widgets/app_list_tile.dart';
 import 'package:unigpa/data/models/subject.dart';
-import 'package:unigpa/features/grades/screens/add_subject_screen.dart';
+import 'package:unigpa/features/grades/widgets/add_subject_sheet.dart';
+import 'package:unigpa/core/utils/number_formatter.dart';
 
 class SubjectTile extends StatelessWidget {
   const SubjectTile({
@@ -34,37 +35,59 @@ class SubjectTile extends StatelessWidget {
     final colors = context.colors;
     final isCompleted = subject.finalPoint10 != null;
     final grade = isCompleted
-        ? GpaCalculator.findGradeFor(
+        ? FindGradeForScore()(
             point10: subject.finalPoint10,
             grades: grades,
           )
         : null;
 
-    final letterGrade = isCompleted ? (grade?.letter ?? 'F') : 'N/A';
+    final letterGrade = grade?.letter ?? 'N/A';
     final point4 = grade?.point4 ?? 0.0;
-    final gradeColor = isCompleted
+    final gradeColor = grade != null
         ? AppColors.letterColor(letterGrade)
         : colors.textHint;
 
     Widget trailingContent;
     if (isCompleted) {
-      trailingContent = Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Text(
-            _fmt(subject.finalPoint10!),
-            style: AppTextStyles.headingSmall.copyWith(color: gradeColor),
-          ),
-          Text(
-            '${_fmt(point4)} / 4.0',
-            style: AppTextStyles.bodySmall.copyWith(
-              color: colors.textSecondary,
+      if (grade != null) {
+
+        trailingContent = Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              _fmt(subject.finalPoint10!),
+              style: AppTextStyles.headingSmall.copyWith(color: gradeColor),
             ),
-          ),
-        ],
-      );
+            Text(
+              '${_fmt(point4)} / 4.0',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: colors.textSecondary,
+              ),
+            ),
+          ],
+        );
+      } else {
+
+        trailingContent = Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              _fmt(subject.finalPoint10!),
+              style: AppTextStyles.headingSmall.copyWith(
+                color: colors.textSecondary,
+              ),
+            ),
+            Text(
+              'N/A',
+              style: AppTextStyles.bodySmall.copyWith(color: colors.textHint),
+            ),
+          ],
+        );
+      }
     } else {
+
       trailingContent = Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -157,8 +180,7 @@ class SubjectTile extends StatelessWidget {
     );
   }
 
-  String _fmt(double v) =>
-      v == v.truncateToDouble() ? v.toInt().toString() : v.toStringAsFixed(1);
+  String _fmt(double v) => NumberFormatter.format(v);
 
   Future<bool?> _confirmDelete(BuildContext context) {
     return showDialog<bool>(

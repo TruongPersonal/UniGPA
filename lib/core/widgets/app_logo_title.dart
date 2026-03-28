@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:unigpa/core/constants/app_colors.dart';
-import 'package:unigpa/data/providers/theme_provider.dart';
+import 'package:unigpa/features/settings/providers/theme_provider.dart';
 
 class AppLogoTitle extends StatelessWidget {
   const AppLogoTitle({super.key});
@@ -16,8 +16,8 @@ class AppLogoTitle extends StatelessWidget {
       children: [
         Image.asset(
           themeProvider.isDark
-              ? 'assets/logo_transparent_white.png'
-              : 'assets/logo_transparent_black.png',
+              ? 'assets/images/logo_transparent_white.png'
+              : 'assets/images/logo_transparent_black.png',
           width: 48,
           height: 48,
           fit: BoxFit.contain,

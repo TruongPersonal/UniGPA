@@ -7,17 +7,19 @@ import 'package:unigpa/core/widgets/app_button.dart';
 import 'package:unigpa/core/widgets/app_text_field.dart';
 import 'package:unigpa/core/widgets/app_bottom_sheet.dart';
 import 'package:unigpa/data/models/subject.dart';
-import 'package:unigpa/data/providers/gpa_provider.dart';
-import 'package:unigpa/data/providers/semester_provider.dart';
-import 'package:unigpa/data/providers/grade_config_provider.dart';
+import 'package:unigpa/features/grades/providers/grades_provider.dart';
+import 'package:unigpa/features/grades/providers/semester_provider.dart';
+import 'package:unigpa/features/grades/providers/grade_config_provider.dart';
 import 'package:unigpa/data/models/academic_semester.dart';
+import 'package:unigpa/core/utils/number_formatter.dart';
+import 'target_scores_table.dart';
 
 Future<void> showAddSubjectSheet(
   BuildContext context, {
   int? editIndex,
   Subject? editSubject,
 }) {
-  final gpaProvider = context.read<GPAProvider>();
+  final gpaProvider = context.read<GradesProvider>();
   final semProvider = context.read<SemesterProvider>();
   final gradeProvider = context.read<GradeConfigProvider>();
 
@@ -77,10 +79,10 @@ class _AddSubjectSheetState extends State<_AddSubjectSheet> {
           : '',
     )..addListener(_onInputChanged);
     _processPointCtrl = TextEditingController(
-      text: s?.processPoint != null ? _fmtNum(s!.processPoint!) : '',
+      text: s?.processPoint != null ? NumberFormatter.format(s!.processPoint!) : '',
     )..addListener(_onInputChanged);
     _examPointCtrl = TextEditingController(
-      text: s?.examPoint != null ? _fmtNum(s!.examPoint!) : '',
+      text: s?.examPoint != null ? NumberFormatter.format(s!.examPoint!) : '',
     )..addListener(_onInputChanged);
 
     _selectedSemester = s?.semester;
@@ -95,27 +97,24 @@ class _AddSubjectSheetState extends State<_AddSubjectSheet> {
     if (_selectedSemester == null) return false;
 
     final pWeightText = _processWeightCtrl.text;
-    final pPointText = _processPointCtrl.text.replaceAll(',', '.');
-    final ePointText = _examPointCtrl.text.replaceAll(',', '.');
+    final pPointText = _processPointCtrl.text;
+    final ePointText = _examPointCtrl.text;
 
     if (pWeightText.isNotEmpty) {
       final w = double.tryParse(pWeightText);
       if (w == null || w < 0 || w > 100) return false;
     }
     if (pPointText.isNotEmpty) {
-      final p = double.tryParse(pPointText);
+      final p = NumberFormatter.tryParseDouble(pPointText);
       if (p == null || p < 0 || p > 10) return false;
     }
     if (ePointText.isNotEmpty) {
-      final e = double.tryParse(ePointText);
+      final e = NumberFormatter.tryParseDouble(ePointText);
       if (e == null || e < 0 || e > 10) return false;
     }
 
     return true;
   }
-
-  String _fmtNum(double v) =>
-      v == v.truncateToDouble() ? v.toInt().toString() : v.toStringAsFixed(1);
 
   @override
   void dispose() {
@@ -158,7 +157,7 @@ class _AddSubjectSheetState extends State<_AddSubjectSheet> {
             ],
           ),
           const SizedBox(height: 16),
-          _TargetScoresTable(subject: s),
+          TargetScoresTable(subject: s),
         ],
       ),
     );
@@ -361,10 +360,8 @@ class _AddSubjectSheetState extends State<_AddSubjectSheet> {
     if (!_isValid) return;
 
     final processWeight = double.tryParse(_processWeightCtrl.text);
-    final processPoint = double.tryParse(
-      _processPointCtrl.text.replaceAll(',', '.'),
-    );
-    final examPoint = double.tryParse(_examPointCtrl.text.replaceAll(',', '.'));
+    final processPoint = NumberFormatter.tryParseDouble(_processPointCtrl.text);
+    final examPoint = NumberFormatter.tryParseDouble(_examPointCtrl.text);
 
     final subject = Subject(
       name: _nameCtrl.text.trim(),
@@ -375,7 +372,7 @@ class _AddSubjectSheetState extends State<_AddSubjectSheet> {
       examPoint: examPoint,
     );
 
-    final provider = context.read<GPAProvider>();
+    final provider = context.read<GradesProvider>();
     final messenger = ScaffoldMessenger.of(context);
     final isEdit = widget.isEditing;
     final editIndex = widget.editIndex;
@@ -400,156 +397,5 @@ class _AddSubjectSheetState extends State<_AddSubjectSheet> {
         ),
       );
     }
-  }
-}
-
-class _TargetScoresTable extends StatelessWidget {
-  const _TargetScoresTable({required this.subject});
-  final Subject subject;
-
-  @override
-  Widget build(BuildContext context) {
-    if (subject.processWeight == null) return const SizedBox();
-    if (subject.processWeight! > 0 && subject.processPoint == null) {
-      return const SizedBox();
-    }
-
-    final activeGrades = context.watch<GradeConfigProvider>().grades.where((g) => g.isActive).toList();
-    if (activeGrades.isEmpty) return const SizedBox();
-
-    final pWeight = subject.processWeight!;
-    final pPoint = subject.processPoint ?? 0.0;
-    final wEnd = 1 - pWeight;
-
-    if (wEnd <= 0) return const SizedBox();
-
-    return Container(
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.colors.divider),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Text(
-                          'Loại',
-                          style: AppTextStyles.labelMedium.copyWith(
-                            color: context.colors.textSecondary,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Text(
-                          'Tổng kết',
-                          style: AppTextStyles.labelMedium.copyWith(
-                            color: context.colors.textSecondary,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Text(
-                          'Cần đạt',
-                          textAlign: TextAlign.right,
-                          style: AppTextStyles.labelMedium.copyWith(
-                            color: context.colors.textSecondary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Divider(height: 1, color: context.colors.divider),
-                ...activeGrades.map((grade) {
-                  final targetScore = grade.startPoint10!;
-                  double needed = (targetScore - pPoint * pWeight) / wEnd;
-                  String text = '';
-                  Color textColor = context.colors.textPrimary;
-
-                  if (needed <= 0) {
-                    text = 'O';
-                    textColor = AppColors.success;
-                  } else if (needed > 10) {
-                    text = 'X';
-                    textColor = AppColors.error;
-                  } else {
-                    text = needed.toStringAsFixed(2);
-                  }
-
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Container(
-                              width: 32,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                color: AppColors.letterColor(
-                                  grade.letter,
-                                ).withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  grade.letter,
-                                  style: AppTextStyles.labelLarge.copyWith(
-                                    color: AppColors.letterColor(grade.letter),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: Text(
-                            '>= ${grade.startPoint10}',
-                            style: AppTextStyles.bodyLarge.copyWith(
-                              color: context.colors.textPrimary,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: Text(
-                            text,
-                            textAlign: TextAlign.right,
-                            style: AppTextStyles.headingSmall.copyWith(
-                              color: textColor,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

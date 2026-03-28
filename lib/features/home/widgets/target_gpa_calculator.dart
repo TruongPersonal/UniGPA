@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:unigpa/core/constants/app_colors.dart';
 import 'package:unigpa/core/constants/app_text_styles.dart';
-import 'package:unigpa/core/utils/gpa_calculator.dart';
+import 'package:unigpa/domain/usecases/gpa/calculate_needed_gpa.dart';
 import 'package:unigpa/core/widgets/app_button.dart';
 import 'package:unigpa/core/widgets/app_card.dart';
 import 'package:unigpa/core/widgets/app_text_field.dart';
+import 'package:unigpa/core/utils/number_formatter.dart';
 
 class TargetGpaCalculator extends StatefulWidget {
   const TargetGpaCalculator({
@@ -14,7 +15,7 @@ class TargetGpaCalculator extends StatefulWidget {
     required this.currentCredits,
   });
 
-  final double currentGPA;
+  final double? currentGPA;
   final int currentCredits;
 
   @override
@@ -31,21 +32,21 @@ class _TargetGpaCalculatorState extends State<TargetGpaCalculator> {
   bool _inputRemaining = true;
 
   double get _effectiveGPA => _useAppData
-      ? widget.currentGPA
-      : (double.tryParse(_manualGpaCtrl.text.replaceAll(',', '.')) ?? 0);
+      ? (widget.currentGPA ?? 0.0)
+      : (NumberFormatter.tryParseDouble(_manualGpaCtrl.text) ?? 0);
   int get _effectiveCredits => _useAppData
       ? widget.currentCredits
       : (int.tryParse(_manualTcCtrl.text) ?? 0);
 
   bool get _isValid {
-    final target = double.tryParse(_targetCtrl.text.replaceAll(',', '.'));
+    final target = NumberFormatter.tryParseDouble(_targetCtrl.text);
     if (target == null || target <= 0 || target > 4.0) return false;
 
     final inputTC = int.tryParse(_creditsCtrl.text);
     if (inputTC == null || inputTC <= 0) return false;
 
     if (!_useAppData) {
-      final gpa = double.tryParse(_manualGpaCtrl.text.replaceAll(',', '.'));
+      final gpa = NumberFormatter.tryParseDouble(_manualGpaCtrl.text);
       if (gpa == null || gpa < 0 || gpa > 4.0) return false;
 
       final tc = int.tryParse(_manualTcCtrl.text);
@@ -71,8 +72,8 @@ class _TargetGpaCalculatorState extends State<TargetGpaCalculator> {
   void _onInputChanged() => setState(() {});
 
   void _showResult() {
-    final target = double.parse(_targetCtrl.text.replaceAll(',', '.'));
-    final inputTC = int.parse(_creditsCtrl.text);
+    final target = NumberFormatter.tryParseDouble(_targetCtrl.text) ?? 0;
+    final inputTC = int.tryParse(_creditsCtrl.text) ?? 0;
     final remaining = _inputRemaining ? inputTC : (inputTC - _effectiveCredits);
 
     if (remaining <= 0) {
@@ -80,7 +81,7 @@ class _TargetGpaCalculatorState extends State<TargetGpaCalculator> {
       return;
     }
 
-    final needed = GpaCalculator.calculateNeededGPA(
+    final needed = CalculateNeededGpa()(
       currentGPA: _effectiveGPA,
       currentCredits: _effectiveCredits,
       targetGPA: target,
@@ -103,7 +104,7 @@ class _TargetGpaCalculatorState extends State<TargetGpaCalculator> {
         content: Text(
           impossible
               ? 'Không thể đạt được GPA mục tiêu!'
-              : 'Cần đạt GPA ≥ ${neededGPA!.toStringAsFixed(2)} / 4.00',
+              : 'Cần đạt GPA ≥ ${neededGPA != null ? NumberFormatter.format(neededGPA, decimal: 2) : '—'} / 4.00',
           textAlign: TextAlign.center,
           style: AppTextStyles.bodyLarge.copyWith(
             color: context.colors.textSecondary,
@@ -145,7 +146,7 @@ class _TargetGpaCalculatorState extends State<TargetGpaCalculator> {
                   color: colors.textPrimary,
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               GestureDetector(
                 onTap: () => setState(() {
                   _useAppData = !_useAppData;

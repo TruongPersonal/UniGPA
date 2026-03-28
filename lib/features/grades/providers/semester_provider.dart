@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+
 import 'package:unigpa/data/models/academic_semester.dart';
 import 'package:unigpa/data/models/year.dart';
-import 'package:unigpa/data/services/storage_service.dart';
+import 'package:unigpa/domain/repositories/semester_repository.dart';
 
 class SemesterProvider extends ChangeNotifier {
-  List<AcademicSemester> _semesters = [];
-
-  SemesterProvider() {
+  SemesterProvider({required SemesterRepository repository})
+      : _repository = repository {
     _loadData();
   }
+
+  final SemesterRepository _repository;
+
+  List<AcademicSemester> _semesters = [];
 
   List<AcademicSemester> get semesters => List.unmodifiable(_semesters);
 
@@ -25,11 +29,10 @@ class SemesterProvider extends ChangeNotifier {
     return years;
   }
 
-  List<AcademicSemester> semestersOfYear(Year year) =>
-      _semesters
-          .where((s) => s.year.start == year.start && s.year.end == year.end)
-          .toList()
-        ..sort((a, b) => a.semester.compareTo(b.semester));
+  List<AcademicSemester> semestersOfYear(Year year) => _semesters
+      .where((s) => s.year.start == year.start && s.year.end == year.end)
+      .toList()
+    ..sort((a, b) => a.semester.compareTo(b.semester));
 
   Future<void> addSemester({
     required Year year,
@@ -41,12 +44,12 @@ class SemesterProvider extends ChangeNotifier {
     if (exists) return;
 
     final semester = AcademicSemester(year: year, semester: semesterNumber);
-    await StorageService.addSemester(semester);
+    await _repository.add(semester);
     _loadData();
   }
 
   Future<bool> deleteSemester(AcademicSemester semester) async {
-    if (StorageService.semesterHasSubjects(semester)) return false;
+    if (_repository.hasSubjects(semester)) return false;
 
     _semesters.removeWhere(
       (s) =>
@@ -55,21 +58,20 @@ class SemesterProvider extends ChangeNotifier {
     );
     notifyListeners();
 
-    await StorageService.deleteSemester(semester);
+    await _repository.delete(semester);
     _loadData();
     return true;
   }
 
   Future<void> deleteAllData() async {
-    await StorageService.clearSemesters();
+    await _repository.clear();
     _loadData();
   }
 
   void reload() => _loadData();
 
   void _loadData() {
-    _semesters = StorageService.getAllSemesters();
-
+    _semesters = _repository.getAll();
     _semesters.sort((a, b) {
       final yearDiff = a.year.start.compareTo(b.year.start);
       return yearDiff != 0 ? yearDiff : a.semester.compareTo(b.semester);

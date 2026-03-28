@@ -56,7 +56,7 @@ class GpaSummaryCard extends StatelessWidget {
     required this.subjectCount,
   });
 
-  final double gpa;
+  final double? gpa;
   final int totalCredits;
   final int totalRegisteredCredits;
   final int subjectCount;
@@ -100,20 +100,22 @@ class GpaSummaryCard extends StatelessWidget {
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
-                        gpa.toStringAsFixed(2),
+                        gpa != null ? gpa!.toStringAsFixed(2) : 'N/A',
                         style: AppTextStyles.displayLarge.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '/ 4.00',
-                        style: AppTextStyles.bodyLarge.copyWith(
-                          color: Colors.white.withValues(alpha: 0.7),
-                          fontWeight: FontWeight.w500,
+                      if (gpa != null) ...[
+                        const SizedBox(width: 4),
+                        Text(
+                          '/ 4.00',
+                          style: AppTextStyles.bodyLarge.copyWith(
+                            color: Colors.white.withValues(alpha: 0.7),
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ],
@@ -169,8 +171,8 @@ class GpaSummaryCard extends StatelessWidget {
     );
   }
 
-  String _classify(double gpa, int subjectCount) {
-    if (subjectCount == 0) return 'Chưa có';
+  String _classify(double? gpa, int subjectCount) {
+    if (subjectCount == 0 || gpa == null) return 'Chưa có';
     if (gpa >= 3.6) return 'Xuất sắc';
     if (gpa >= 3.2) return 'Giỏi';
     if (gpa >= 2.5) return 'Khá';

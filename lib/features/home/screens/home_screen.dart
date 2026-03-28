@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:unigpa/data/providers/gpa_provider.dart';
+import 'package:unigpa/features/grades/providers/grades_provider.dart';
 import '../widgets/gpa_summary_card.dart';
 import '../widgets/target_gpa_calculator.dart';
 
@@ -9,7 +9,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<GPAProvider>(
+    return Consumer<GradesProvider>(
       builder: (context, provider, _) {
         return Padding(
           padding: const EdgeInsets.all(20),

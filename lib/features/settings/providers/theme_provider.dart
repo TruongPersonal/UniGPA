@@ -1,17 +1,20 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:unigpa/data/services/storage_service.dart';
+import 'package:unigpa/domain/repositories/settings_repository.dart';
 
 class ThemeProvider extends ChangeNotifier with WidgetsBindingObserver {
-  ThemeMode _themeMode = ThemeMode.system;
-
-  ThemeProvider() {
+  ThemeProvider({required SettingsRepository repository})
+      : _repository = repository {
     WidgetsBinding.instance.addObserver(this);
     _loadTheme();
   }
 
+  final SettingsRepository _repository;
+
+  ThemeMode _themeMode = ThemeMode.system;
+
   void _loadTheme() {
-    final index = StorageService.getThemeMode();
+    final index = _repository.getThemeMode();
     _themeMode = ThemeMode.values[index];
     notifyListeners();
   }
@@ -43,7 +46,7 @@ class ThemeProvider extends ChangeNotifier with WidgetsBindingObserver {
     if (_themeMode == mode) return;
     _themeMode = mode;
     notifyListeners();
-    await StorageService.setThemeMode(mode.index);
+    await _repository.setThemeMode(mode.index);
   }
 
   Future<void> toggleTheme() async {

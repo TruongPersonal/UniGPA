@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:unigpa/core/constants/app_colors.dart';
 import 'package:unigpa/core/constants/app_text_styles.dart';
@@ -7,55 +6,45 @@ import 'package:unigpa/core/widgets/app_card.dart';
 import 'package:unigpa/core/widgets/empty_state.dart';
 import 'package:unigpa/data/models/academic_semester.dart';
 import 'package:unigpa/data/models/year.dart';
-import 'package:unigpa/data/providers/semester_provider.dart';
-import 'package:unigpa/data/services/storage_service.dart';
+import 'package:unigpa/features/grades/providers/semester_provider.dart';
+import 'package:unigpa/features/grades/providers/grades_provider.dart';
 import 'package:unigpa/core/widgets/app_button.dart';
 import 'package:unigpa/core/widgets/app_list_tile.dart';
 import 'package:unigpa/core/widgets/app_text_field.dart';
 import 'package:unigpa/core/widgets/app_bottom_sheet.dart';
-import 'package:unigpa/core/widgets/app_logo_title.dart';
+import 'package:flutter/services.dart';
 
-class SemesterManagementScreen extends StatelessWidget {
-  const SemesterManagementScreen({super.key});
+class SemesterManagementView extends StatelessWidget {
+  const SemesterManagementView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const BackButtonIcon(),
-          tooltip: 'Trở về',
-          onPressed: () => Navigator.maybePop(context),
-        ),
-        centerTitle: true,
-        title: const AppLogoTitle(),
-      ),
-      body: SafeArea(
-        child: Consumer<SemesterProvider>(
-          builder: (context, provider, _) {
-            if (provider.isEmpty) {
-              return const EmptyState(
-                icon: Icons.calendar_today_rounded,
-                title: 'Chưa có học vụ nào',
-              );
-            }
-
-            final years = provider.distinctYears;
-            return ListView.separated(
-              padding: const EdgeInsets.all(20),
-              itemCount: years.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 16),
-              itemBuilder: (context, i) {
-                final year = years[i];
-                return _YearSection(
-                  year: year,
-                  semesters: provider.semestersOfYear(year),
-                  onDelete: (sem) => _onDelete(context, provider, sem),
-                );
-              },
+      backgroundColor: Colors.transparent,
+      body: Consumer<SemesterProvider>(
+        builder: (context, provider, _) {
+          if (provider.isEmpty) {
+            return const EmptyState(
+              icon: Icons.calendar_today_rounded,
+              title: 'Chưa có học vụ nào',
             );
-          },
-        ),
+          }
+
+          final years = provider.distinctYears;
+          return ListView.separated(
+            padding: const EdgeInsets.all(20),
+            itemCount: years.length,
+            separatorBuilder: (_, _) => const SizedBox(height: 16),
+            itemBuilder: (context, i) {
+              final year = years[i];
+              return _YearSection(
+                year: year,
+                semesters: provider.semestersOfYear(year),
+                onDelete: (sem) => _onDelete(context, provider, sem),
+              );
+            },
+          );
+        },
       ),
       floatingActionButton: Consumer<SemesterProvider>(
         builder: (context, provider, _) => FloatingActionButton(
@@ -167,7 +156,11 @@ class _SemesterTile extends StatelessWidget {
         final confirm = await _confirmDelete(context);
         if (confirm != true) return false;
 
-        if (StorageService.semesterHasSubjects(semester)) {
+        if (!context.mounted) return false;
+        final hasSubjects = context.read<GradesProvider>().subjects.any(
+          (s) => s.semester.year.start == semester.year.start && s.semester.semester == semester.semester,
+        );
+        if (hasSubjects) {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -257,7 +250,6 @@ class _AddSemesterSheetState extends State<_AddSemesterSheet> {
   late final TextEditingController _yearCtrl;
   int? _startYear;
   int _semesterNumber = 1;
-  final bool _isLoading = false;
 
   @override
   void initState() {
@@ -265,7 +257,7 @@ class _AddSemesterSheetState extends State<_AddSemesterSheet> {
     _yearCtrl = TextEditingController();
     _yearCtrl.addListener(() {
       final y = int.tryParse(_yearCtrl.text);
-      setState(() => _startYear = y);
+      if (mounted) setState(() => _startYear = y);
     });
   }
 
@@ -284,36 +276,28 @@ class _AddSemesterSheetState extends State<_AddSemesterSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Thêm học vụ',
+            'Thêm học kỳ',
             style: AppTextStyles.headingMedium.copyWith(
               color: colors.textPrimary,
             ),
           ),
           const SizedBox(height: 24),
-
           Text(
             'Năm học',
             style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary),
           ),
           const SizedBox(height: 8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 120,
-                child: AppTextField(
-                  controller: _yearCtrl,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  maxLength: 4,
-                  autocorrect: false,
-                  hint: 'vd: 2025',
-                ),
-              ),
-            ],
+          SizedBox(
+            width: 120,
+            child: AppTextField(
+              controller: _yearCtrl,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              maxLength: 4,
+              hint: 'vd: 2025',
+            ),
           ),
           const SizedBox(height: 20),
-
           Text(
             'Học kỳ',
             style: AppTextStyles.labelLarge.copyWith(color: colors.textPrimary),
@@ -329,26 +313,13 @@ class _AddSemesterSheetState extends State<_AddSemesterSheet> {
                   selected: selected,
                   onSelected: (_) => setState(() => _semesterNumber = n),
                   selectedColor: colors.primaryLight,
-                  labelStyle: TextStyle(
-                    color: selected ? AppColors.primary : colors.textPrimary,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    side: BorderSide(
-                      color: selected ? AppColors.primary : colors.divider,
-                    ),
-                  ),
-                  backgroundColor: colors.surface,
                 ),
               );
             }).toList(),
           ),
-          const SizedBox(height: 16),
-
+          const SizedBox(height: 24),
           AppButton(
             onPressed: _startYear == null ? null : _submit,
-            isLoading: _isLoading,
             label: 'Lưu',
           ),
           const SizedBox(height: 8),
@@ -360,8 +331,6 @@ class _AddSemesterSheetState extends State<_AddSemesterSheet> {
   Future<void> _submit() async {
     final provider = context.read<SemesterProvider>();
     final messenger = ScaffoldMessenger.of(context);
-
-    FocusManager.instance.primaryFocus?.unfocus();
     Navigator.pop(context);
 
     final exists = provider.semesters.any(
