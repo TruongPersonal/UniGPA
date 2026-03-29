@@ -7,6 +7,7 @@ import 'package:unigpa/core/widgets/app_button.dart';
 import 'package:unigpa/core/widgets/app_card.dart';
 import 'package:unigpa/core/widgets/app_text_field.dart';
 import 'package:unigpa/core/utils/number_formatter.dart';
+import 'package:unigpa/features/home/widgets/plan_grades_sheet.dart';
 
 class TargetGpaCalculator extends StatefulWidget {
   const TargetGpaCalculator({
@@ -101,18 +102,54 @@ class _TargetGpaCalculatorState extends State<TargetGpaCalculator> {
             style: const TextStyle(fontSize: 48),
           ),
         ),
-        content: Text(
-          impossible
-              ? 'Không thể đạt được GPA mục tiêu!'
-              : 'Cần đạt GPA ≥ ${neededGPA != null ? NumberFormatter.format(neededGPA, decimal: 2) : '—'} / 4.00',
-          textAlign: TextAlign.center,
-          style: AppTextStyles.bodyLarge.copyWith(
-            color: context.colors.textSecondary,
-            height: 1.5,
-          ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              impossible
+                  ? 'Không thể đạt được GPA mục tiêu!'
+                  : 'Cần đạt GPA ≥ ${neededGPA != null ? NumberFormatter.format(neededGPA, decimal: 2) : '—'} / 4.00',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyLarge.copyWith(
+                color: context.colors.textSecondary,
+                height: 1.5,
+              ),
+            ),
+            if (!impossible && neededGPA != null) ...[
+              const SizedBox(height: 24),
+              AppButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  _openPlanGradesSheet();
+                },
+                label: 'Tính toán lộ trình',
+              ),
+            ]
+          ],
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         backgroundColor: context.colors.surface,
+      ),
+    );
+  }
+
+  void _openPlanGradesSheet() {
+    final target = NumberFormatter.tryParseDouble(_targetCtrl.text) ?? 0;
+    final inputTC = int.tryParse(_creditsCtrl.text) ?? 0;
+    final remaining = _inputRemaining ? inputTC : (inputTC - _effectiveCredits);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: PlanGradesSheet(
+          targetGpa: target,
+          currentGpa: _effectiveGPA,
+          currentCredits: _effectiveCredits,
+          remainingCredits: remaining,
+        ),
       ),
     );
   }

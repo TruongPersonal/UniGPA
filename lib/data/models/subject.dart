@@ -32,6 +32,8 @@ class Subject {
     this.examPoint,
   });
 
+  // Nếu có đủ điểm quá trình & điểm thi -> QT * HS + KTHP * (1 - HS)
+  // Nếu chỉ có 1 trong 2 hoặc môn không có trọng số -> Lấy điểm thành phần được gán thẳng
   double? get finalPoint10 {
     if (processWeight != null) {
       if (processWeight == 1.0) return processPoint;
@@ -47,6 +49,7 @@ class Subject {
     return point10;
   }
 
+  // Quy đổi điểm tổng kết hệ 10 sang hệ 4
   double? getPoint4(List<Grade> grades) {
     if (finalPoint10 == null) return null;
     for (var grade in grades) {
@@ -58,6 +61,7 @@ class Subject {
     return 0.0;
   }
 
+  // Quy đổi điểm tổng kết hệ 10 sang chữ
   String? getGradeLetter(List<Grade> grades) {
     if (finalPoint10 == null) return null;
     for (var grade in grades) {

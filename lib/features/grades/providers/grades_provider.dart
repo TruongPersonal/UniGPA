@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:unigpa/data/models/subject.dart';
 import 'package:unigpa/data/models/grade.dart';
+import 'package:unigpa/data/models/academic_semester.dart';
 import 'package:unigpa/domain/repositories/subject_repository.dart';
 import 'package:unigpa/domain/repositories/grade_repository.dart';
 import 'package:unigpa/domain/usecases/gpa/find_grade_for_score.dart';
@@ -38,23 +39,17 @@ class GradesProvider extends ChangeNotifier {
   List<Subject> get subjects => List.unmodifiable(_subjects);
   List<Grade> get grades => List.unmodifiable(_grades);
 
-  List<Subject> get _gradedSubjects => _subjects.where((s) {
-    if (s.finalPoint10 == null) return false;
-    return _findGrade(point10: s.finalPoint10, grades: _grades) != null;
-  }).toList();
+  int _totalRegisteredCredits = 0;
+  int _totalSubjectsCount = 0;
+  int _totalCredits = 0;
+  double? _currentGPA;
+  Map<AcademicSemester, List<Subject>> _subjectsBySemester = {};
 
-  int get totalRegisteredCredits => _gradedSubjects.fold(0, (sum, s) => sum + s.credits);
-
-  int get totalSubjectsCount => _gradedSubjects.length;
-
-  int get totalCredits {
-    return _gradedSubjects.where((s) {
-      final g = _findGrade(point10: s.finalPoint10, grades: _grades);
-      return g != null && g.letter != 'F';
-    }).fold(0, (sum, s) => sum + s.credits);
-  }
-
-  double? get currentGPA => _calculateCumGpa(subjects: _subjects, grades: _grades, includeFail: false);
+  int get totalRegisteredCredits => _totalRegisteredCredits;
+  int get totalSubjectsCount => _totalSubjectsCount;
+  int get totalCredits => _totalCredits;
+  double? get currentGPA => _currentGPA;
+  Map<AcademicSemester, List<Subject>> get subjectsBySemester => _subjectsBySemester;
 
   double? calculateGPA(List<Subject> subjects, {bool includeFail = true}) {
     return _calculateCumGpa(subjects: subjects, grades: _grades, includeFail: includeFail);
@@ -135,6 +130,32 @@ class GradesProvider extends ChangeNotifier {
   void _loadData() {
     _subjects = _subjectRepo.getAll();
     _grades = _gradeRepo.getAll();
+    _totalRegisteredCredits = 0;
+    _totalSubjectsCount = 0;
+    _totalCredits = 0;
+    _subjectsBySemester = {};
+
+    for (var s in _subjects) {
+      _subjectsBySemester.putIfAbsent(s.semester, () => []).add(s);
+
+      if (s.finalPoint10 != null) {
+        final g = _findGrade(point10: s.finalPoint10, grades: _grades);
+        if (g != null) {
+          _totalRegisteredCredits += s.credits;
+          _totalSubjectsCount++;
+          if (g.letter != 'F') {
+            _totalCredits += s.credits;
+          }
+        }
+      }
+    }
+
+    _currentGPA = _calculateCumGpa(
+      subjects: _subjects,
+      grades: _grades,
+      includeFail: false,
+    );
+
     notifyListeners();
   }
 }

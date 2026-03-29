@@ -7,6 +7,8 @@ class CalculateCumulativeGpa {
 
   final FindGradeForScore _findGrade;
 
+  // Tính GPA hệ 4 dựa trên danh sách môn học và thang chữ
+  // False để bỏ qua các môn rớt (F) khi tính
   double? call({
     required List<Subject> subjects,
     required List<Grade> grades,

@@ -79,73 +79,44 @@ class _GradesListViewState extends State<GradesListView> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<GradesProvider, SemesterProvider>(
-      builder: (context, gradesProvider, semesterProvider, _) {
-        final subjects = gradesProvider.subjects;
-        final grades = gradesProvider.grades;
-        final semesters = semesterProvider.semesters;
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Consumer2<GradesProvider, SemesterProvider>(
+        builder: (context, gradesProvider, semesterProvider, _) {
+          final semesters = semesterProvider.semesters;
 
-        if (semesters.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.all(20),
-            child: EmptyState(
-              icon: Icons.calendar_today_rounded,
-              title: 'Chưa có học vụ nào',
-            ),
-          );
-        }
+          if (semesters.isEmpty) {
+            return const Padding(
+              padding: EdgeInsets.all(20),
+              child: EmptyState(
+                icon: Icons.calendar_today_rounded,
+                title: 'Chưa có học vụ nào',
+              ),
+            );
+          }
 
-        if (subjects.isEmpty) {
-          return Scaffold(
-            backgroundColor: Colors.transparent,
-            body: const Padding(
+          final subjects = gradesProvider.subjects;
+          if (subjects.isEmpty) {
+            return const Padding(
               padding: EdgeInsets.all(20),
               child: EmptyState(
                 icon: Icons.school_rounded,
                 title: 'Chưa có môn học nào',
               ),
-            ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () => showAddSubjectSheet(context),
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              child: const Icon(Icons.add_rounded),
-            ),
-          );
-        }
+            );
+          }
 
-        final hasGradedSubjects = subjects.any((s) => s.finalPoint10 != null);
-        final hasChartData = hasGradedSubjects && gradesProvider.totalSubjectsCount > 0;
+          final hasGradedSubjects = subjects.any((s) => s.finalPoint10 != null);
+          final hasChartData = hasGradedSubjects && gradesProvider.totalSubjectsCount > 0;
+          final subjectsBySemester = gradesProvider.subjectsBySemester;
 
-        return Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Column(
+          return Column(
             children: [
               if (_isSelectionMode)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.close_rounded, color: AppColors.primary),
-                        onPressed: _exitSelectionMode,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Đã chọn ${_selectedSubjects.length}',
-                        style: AppTextStyles.headingSmall.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline_rounded, color: AppColors.error),
-                        onPressed: () => _deleteSelected(context),
-                      ),
-                    ],
-                  ),
+                _SelectionHeader(
+                  selectedCount: _selectedSubjects.length,
+                  onExit: _exitSelectionMode,
+                  onDelete: () => _deleteSelected(context),
                 ),
               Expanded(
                 child: CustomScrollView(
@@ -154,7 +125,10 @@ class _GradesListViewState extends State<GradesListView> {
                       SliverPadding(
                         padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
                         sliver: SliverToBoxAdapter(
-                          child: SemesterGpaChart(subjects: subjects, grades: grades),
+                          child: SemesterGpaChart(
+                            subjects: subjects,
+                            grades: gradesProvider.grades,
+                          ),
                         ),
                       ),
                     SliverPadding(
@@ -167,11 +141,8 @@ class _GradesListViewState extends State<GradesListView> {
                       sliver: SliverList(
                         delegate: SliverChildBuilderDelegate((context, semIdx) {
                           final semester = semesters[semIdx];
-                          final semSubjects = subjects
-                              .where((s) =>
-                                  s.semester.year.start == semester.year.start &&
-                                  s.semester.semester == semester.semester)
-                              .toList();
+                          // Lấy môn từ Map O(1) thay List O(N)
+                          final semSubjects = subjectsBySemester[semester] ?? [];
 
                           if (semSubjects.isEmpty) return const SizedBox.shrink();
 
@@ -180,7 +151,7 @@ class _GradesListViewState extends State<GradesListView> {
                             child: SemesterSection(
                               semester: semester,
                               subjects: semSubjects,
-                              grades: grades,
+                              grades: gradesProvider.grades,
                               isSelectionMode: _isSelectionMode,
                               selectedSubjects: _selectedSubjects,
                               onToggleSelection: _toggleSelection,
@@ -202,15 +173,61 @@ class _GradesListViewState extends State<GradesListView> {
                 ),
               ),
             ],
-          ),
-          floatingActionButton: FloatingActionButton(
+          );
+        },
+      ),
+      floatingActionButton: Consumer<SemesterProvider>(
+        builder: (context, semesterProvider, _) {
+          if (semesterProvider.semesters.isEmpty) return const SizedBox.shrink();
+          return FloatingActionButton(
             onPressed: () => showAddSubjectSheet(context),
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             child: const Icon(Icons.add_rounded),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _SelectionHeader extends StatelessWidget {
+  const _SelectionHeader({
+    required this.selectedCount,
+    required this.onExit,
+    required this.onDelete,
+  });
+
+  final int selectedCount;
+  final VoidCallback onExit;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      color: AppColors.primary.withValues(alpha: 0.1),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.close_rounded, color: AppColors.primary),
+            onPressed: onExit,
           ),
-        );
-      },
+          const SizedBox(width: 8),
+          Text(
+            'Đã chọn $selectedCount',
+            style: AppTextStyles.headingSmall.copyWith(
+              color: AppColors.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const Spacer(),
+          IconButton(
+            icon: const Icon(Icons.delete_outline_rounded, color: AppColors.error),
+            onPressed: onDelete,
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:unigpa/data/models/subject.dart';
 
 class CalculateAverage10 {
+  // Tính điểm trung bình hệ 10
   double? call(List<Subject> subjects) {
     if (subjects.isEmpty) return null;
 
