@@ -14,7 +14,7 @@ class CalculateNeededGpa {
             currentGPA * currentCredits) /
         remainingCredits;
 
-    if (needed < 0 || needed > 4.0) return null;
+    if (needed < 1.0 || needed > 4.0) return null;
     return needed;
   }
 }

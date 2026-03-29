@@ -31,7 +31,7 @@ class CalculateTargetGrades {
     final currentTotalPoints = currentGpa * currentCredits;
     final neededPoints = targetTotalPoints - currentTotalPoints;
 
-    final grades = activeGrades.where((g) => g.isActive && g.point4 != null).toList()
+    final grades = activeGrades.where((g) => g.isActive && g.point4 != null && g.isPassing).toList()
       ..sort((a, b) => a.point4!.compareTo(b.point4!));
 
     if (grades.isEmpty) return null;
