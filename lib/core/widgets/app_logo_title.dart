@@ -4,7 +4,9 @@ import 'package:unigpa/core/constants/app_colors.dart';
 import 'package:unigpa/features/settings/providers/theme_provider.dart';
 
 class AppLogoTitle extends StatelessWidget {
-  const AppLogoTitle({super.key});
+  final bool isWhite;
+  
+  const AppLogoTitle({super.key, this.isWhite = false});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +17,7 @@ class AppLogoTitle extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Image.asset(
-          themeProvider.isDark
+          isWhite || themeProvider.isDark
               ? 'assets/images/logo_transparent_white.png'
               : 'assets/images/logo_transparent_black.png',
           width: 48,
@@ -30,22 +32,22 @@ class AppLogoTitle extends StatelessWidget {
             RichText(
               text: TextSpan(
                 children: [
-                  TextSpan(
+                   TextSpan(
                     text: 'Uni',
                     style: TextStyle(
                       fontSize: 19,
                       fontWeight: FontWeight.w800,
-                      color: colors.textPrimary,
+                      color: isWhite ? Colors.white : colors.textPrimary,
                       letterSpacing: -0.5,
                       height: 1.1,
                     ),
                   ),
-                  const TextSpan(
+                  TextSpan(
                     text: 'GPA',
                     style: TextStyle(
                       fontSize: 19,
                       fontWeight: FontWeight.w800,
-                      color: AppColors.primary,
+                      color: isWhite ? Colors.white : AppColors.primary,
                       letterSpacing: -0.5,
                       height: 1.1,
                     ),
@@ -58,7 +60,7 @@ class AppLogoTitle extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
-                color: colors.textSecondary,
+                color: isWhite ? Colors.white70 : colors.textSecondary,
                 letterSpacing: 0.2,
               ),
             ),

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:unigpa/core/constants/app_colors.dart';
-import 'package:unigpa/features/settings/providers/theme_provider.dart';
+import 'package:unigpa/core/constants/app_text_styles.dart';
+import 'package:unigpa/core/widgets/app_drawer.dart';
+import 'package:unigpa/core/widgets/app_logo_title.dart';
+import 'package:unigpa/core/widgets/theme_toggle_button.dart';
 import 'package:unigpa/features/grades/screens/grades_screen.dart';
 import 'package:unigpa/features/home/screens/home_screen.dart';
 import 'package:unigpa/features/settings/screens/settings_screen.dart';
-import 'package:unigpa/core/widgets/app_logo_title.dart';
-import 'package:unigpa/core/constants/app_text_styles.dart';
 
 class _TabItem {
   const _TabItem({required this.icon, required this.label});
@@ -43,6 +43,7 @@ class _AppShellState extends State<AppShell> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
+        drawer: const AppDrawer(),
         backgroundColor: colors.background,
         appBar: _buildAppBar(context, colors),
         body: SafeArea(
@@ -52,28 +53,24 @@ class _AppShellState extends State<AppShell> {
             child: IndexedStack(index: _currentIndex, children: _screens),
           ),
         ),
-        floatingActionButton: _buildFloatingActionButton(context),
         bottomNavigationBar: _buildBottomNavBar(colors),
       ),
     );
   }
 
-  Widget? _buildFloatingActionButton(BuildContext context) {
-    if (_currentIndex == 0) {
-
-    }
-
-    return null;
-  }
-
-  AppBar _buildAppBar(
-    BuildContext context,
-    AppColorsData colors,
-  ) {
+  AppBar _buildAppBar(BuildContext context, AppColorsData colors) {
     return AppBar(
       backgroundColor: colors.surface,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
+      centerTitle: true,
+      leading: Builder(
+        builder: (context) => IconButton(
+          icon: const Icon(Icons.menu),
+          tooltip: 'Mở điều hướng',
+          onPressed: () => Scaffold.of(context).openDrawer(),
+        ),
+      ),
       titleSpacing: 20,
       bottom: _currentIndex == 1
           ? TabBar(
@@ -94,36 +91,9 @@ class _AppShellState extends State<AppShell> {
               child: Divider(height: 1, color: colors.divider),
             ),
       title: const AppLogoTitle(),
-      actions: [
-        Consumer<ThemeProvider>(
-          builder: (context, themeProvider, _) {
-            final mode = themeProvider.themeMode;
-            return IconButton(
-              tooltip: mode == ThemeMode.system
-                  ? 'Giao diện hệ thống'
-                  : mode == ThemeMode.light
-                      ? 'Giao diện sáng'
-                      : 'Giao diện tối',
-              icon: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 250),
-                transitionBuilder: (child, anim) =>
-                    RotationTransition(turns: anim, child: child),
-                child: Icon(
-                  mode == ThemeMode.system
-                      ? Icons.brightness_6_rounded
-                      : mode == ThemeMode.light
-                          ? Icons.wb_sunny_rounded
-                          : Icons.nightlight_round,
-                  key: ValueKey(mode),
-                  color: colors.textSecondary,
-                  size: 20,
-                ),
-              ),
-              onPressed: themeProvider.toggleTheme,
-            );
-          },
-        ),
-        const SizedBox(width: 4),
+      actions: const [
+        ThemeToggleButton(),
+        SizedBox(width: 4),
       ],
     );
   }

@@ -28,7 +28,9 @@ import 'package:unigpa/features/settings/providers/theme_provider.dart';
 import 'package:unigpa/features/grades/providers/grade_config_provider.dart';
 
 import 'package:unigpa/core/theme/app_theme.dart';
-import 'package:unigpa/app_shell.dart';
+import 'package:unigpa/features/auth/providers/auth_provider.dart';
+import 'package:unigpa/features/auth/screens/auth_screen.dart';
+import 'package:unigpa/features/home/screens/main_dashboard_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -73,12 +75,15 @@ void main() async {
   final calcAvg10 = CalculateAverage10();
   final importSubjects = ImportSubjects(subjectRepo, semesterRepo);
 
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => ThemeProvider(repository: settingsRepo),
-        ),
+    runApp(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (_) => AuthProvider(),
+          ),
+          ChangeNotifierProvider(
+            create: (_) => ThemeProvider(repository: settingsRepo),
+          ),
         ChangeNotifierProvider(
           create: (_) => GradesProvider(
             subjectRepository: subjectRepo,
@@ -107,13 +112,17 @@ class UniGpaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeMode = context.watch<ThemeProvider>().themeMode;
+    final authProvider = context.watch<AuthProvider>();
+    
     return MaterialApp(
       title: 'UniGPA',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: themeMode,
-      home: AppShell(),
+      home: authProvider.isInitializing 
+          ? const Scaffold(body: Center(child: CircularProgressIndicator()))
+          : (authProvider.isAuthenticated ? const MainDashboardScreen() : const AuthScreen()),
     );
   }
 }
