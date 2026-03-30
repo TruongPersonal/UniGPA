@@ -59,7 +59,7 @@ class AppDrawer extends StatelessWidget {
                   child: ClipPath(
                     clipper: _WaveClipper(),
                     child: Container(
-                      height: 180,
+                      height: 200,
                       width: double.infinity,
                       decoration: const BoxDecoration(
                         gradient: LinearGradient(
@@ -83,7 +83,7 @@ class AppDrawer extends StatelessWidget {
                                 color: Colors.white,
                               ),
                             ),
-                            const SizedBox(height: 38),
+                            const SizedBox(height: 36),
                           ],
                         ),
                       ),
