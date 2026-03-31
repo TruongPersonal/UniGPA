@@ -209,6 +209,10 @@ class _TargetGpaCalculatorState extends State<TargetGpaCalculator> {
                     controller: _manualGpaCtrl,
                     label: 'GPA hiện tại',
                     hint: 'vd: 3.20',
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d*[\.,]?\d*')),
+                    ],
                     onChanged: (_) => _onInputChanged(),
                   ),
                 ),
@@ -234,6 +238,10 @@ class _TargetGpaCalculatorState extends State<TargetGpaCalculator> {
                   controller: _targetCtrl,
                   label: 'GPA mục tiêu',
                   hint: 'vd: 3.20',
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d*[\.,]?\d*')),
+                  ],
                   onChanged: (_) => _onInputChanged(),
                 ),
               ),

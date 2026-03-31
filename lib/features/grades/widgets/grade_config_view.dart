@@ -263,7 +263,7 @@ class _EditGradeSheetState extends State<_EditGradeSheet> {
               Expanded(
                 child: AppTextField(
                   controller: _startCtrl,
-                  label: 'Từ điểm',
+                  label: 'Từ điểm (Thang 10)',
                   hint: 'vd: 0.0',
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 ),
@@ -272,7 +272,7 @@ class _EditGradeSheetState extends State<_EditGradeSheet> {
               Expanded(
                 child: AppTextField(
                   controller: _endCtrl,
-                  label: 'Đến điểm',
+                  label: 'Đến điểm (Thang 10)',
                   hint: 'vd: 10.0',
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 ),
