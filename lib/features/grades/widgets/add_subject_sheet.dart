@@ -236,7 +236,7 @@ class _AddSubjectSheetState extends State<_AddSubjectSheet> {
           const SizedBox(height: 16),
           AppTextField(
             controller: _examPointCtrl,
-            label: 'KTHPT',
+            label: 'KTHP',
             hint: 'vd: 9.0',
             enabled: _processWeightCtrl.text != '100',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
